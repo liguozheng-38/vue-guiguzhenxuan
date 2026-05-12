@@ -32,6 +32,7 @@ export default defineConfig(({ command }) => {
 
       // ✅ mock 配置（开发环境启用）
       viteMockServe({
+        mockPath: 'src/mock',
         localEnabled: command === 'serve',
       }),
     ],
