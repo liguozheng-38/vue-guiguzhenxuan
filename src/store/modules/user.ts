@@ -42,7 +42,7 @@ const useUserStore = defineStore('User', {
         //   return Promise.reject(new Error(loginData.data))
         // }
         // 直接从 data 对象里取 token，类型会自动推断为 string
-        const token = loginData.data.token
+        const token = loginData.data
         this.token = token
         SET_TOKEN(token)
         return 'ok'
@@ -56,8 +56,8 @@ const useUserStore = defineStore('User', {
       const result: userInfoReponseData = await reqUserInfo()
       //如果获取用户信息成功，存储一下用户信息
       if (result.code == 200) {
-        this.username = result.data.checkUser.username
-        this.avatar = result.data.checkUser.avatar
+        this.username = result.data.roles[0]
+        this.avatar = result.data.avatar
 
         return 'ok'
       } else {
@@ -66,26 +66,26 @@ const useUserStore = defineStore('User', {
     },
 
     //退出登录
-    // async userLogout() {
-    //   //退出登录请求
-    //   const result: any = await reqLogout()
-    //   if (result.code == 200) {
-    //     //目前没有mock接口:退出登录接口(通知服务器本地用户唯一标识失效)
-    //     this.token = ''
-    //     this.username = ''
-    //     this.avatar = ''
-    //     REMOVE_TOKEN()
-    //     return 'ok'
-    //   } else {
-    //     return Promise.reject(new Error(result.message))
-    //   }
-    // },
-    userLogout() {
-      this.token = ''
-      this.username = ''
-      this.avatar = ''
-      REMOVE_TOKEN()
+    async userLogout() {
+      //退出登录请求
+      const result: any = await reqLogout()
+      if (result.code == 200) {
+        //目前没有mock接口:退出登录接口(通知服务器本地用户唯一标识失效)
+        this.token = ''
+        this.username = ''
+        this.avatar = ''
+        REMOVE_TOKEN()
+        return 'ok'
+      } else {
+        return Promise.reject(new Error(result.message))
+      }
     },
+    // userLogout() {
+    //   this.token = ''
+    //   this.username = ''
+    //   this.avatar = ''
+    //   REMOVE_TOKEN()
+    // },
   },
   getters: {},
 })

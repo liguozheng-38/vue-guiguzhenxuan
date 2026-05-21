@@ -3,7 +3,9 @@
   <router-view v-slot="{ Component }">
     <transition name="fade">
       <!-- 渲染layout一级路由组件的子路由 -->
-      <component :is="Component" v-if="flag" />
+      <div v-if="flag">
+        <component :is="Component" />
+      </div>
     </transition>
   </router-view>
 </template>

@@ -41,7 +41,7 @@
   //定义变量控制按钮加载效果
   let loading = ref(false)
   //收集账号与密码的数据
-  let loginForm = reactive({ username: 'admin', password: 'atguigu123' })
+  let loginForm = reactive({ username: 'admin', password: '111111' })
   //登录按钮回调
   const login = async () => {
     //保证全部表单相校验通过再发请求
@@ -59,6 +59,8 @@
       //判断登录的时候,路由路径当中是否有query参数，如果有就往query参数跳转，没有跳转到首页
       let redirect: any = $route.query.redirect
       $router.push({ path: redirect || '/' })
+      // 测试获取用户信息接口
+      // await useStore.userInfo()
       //登录成功提示信息
       ElNotification({
         type: 'success',

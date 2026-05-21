@@ -5,5 +5,7 @@
   //获取存储用户信息的仓库对象
   const userStore = useUserStore()
 </script>
-<template><h1>我是首页</h1></template>
+<template>
+  <h1>我是首页，“{{ userStore.username }}”</h1>
+</template>
 <style scoped lang="scss"></style>

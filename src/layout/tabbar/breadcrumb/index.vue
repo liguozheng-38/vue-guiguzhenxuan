@@ -8,7 +8,7 @@
   <el-breadcrumb separator-icon="ArrowRight">
     <el-breadcrumb-item v-for="item in $route.matched" :key="item.path" v-show="item.meta.title" :to="item.path">
       <!-- 图标 -->
-      <el-icon>
+      <el-icon v-if="item.meta.icon">
         <component :is="item.meta.icon"></component>
       </el-icon>
       <span>{{ item.meta.title }}</span>
