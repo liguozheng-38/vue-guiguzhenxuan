@@ -55,12 +55,21 @@
     try {
       //保证登录成功
       await useStore.userLogin(loginForm)
+      //先获取用户信息（加载异步路由）
+      await useStore.userInfo()
       //编程式导航跳转到展示数据首页
       //判断登录的时候,路由路径当中是否有query参数，如果有就往query参数跳转，没有跳转到首页
       let redirect: any = $route.query.redirect
-      $router.push({ path: redirect || '/' })
-      // 测试获取用户信息接口
-      // await useStore.userInfo()
+      //检查跳转路径是否存在于用户的菜单路由中
+      const hasAccess = useStore.menuRoutes.some(route => {
+        if (route.path === redirect) return true
+        if (route.children) {
+          return route.children.some(child => child.path === redirect)
+        }
+        return false
+      })
+      //如果有权限则跳转，否则跳转到首页
+      $router.push({ path: hasAccess ? redirect : '/' })
       //登录成功提示信息
       ElNotification({
         type: 'success',

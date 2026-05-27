@@ -55,6 +55,9 @@ export const constantRoute = [
       icon: 'Platform',
     },
   },
+]
+
+export const asyncRoute = [
   {
     path: '/acl',
     component: () => import('@/layout/index.vue'),

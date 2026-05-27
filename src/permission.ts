@@ -12,7 +12,7 @@ import pinia from './store'
 const userStore = useUserStore(pinia)
 //全局守卫:项目当中任意路由切换都会触发的钩子
 //全局前置守卫
-router.beforeEach(async (to: any, from: any) => {
+router.beforeEach(async (to: any) => {
   // document.title = `${setting.title} - ${to.meta.title}`
   //to:你将要访问那个路由
   //from:你从来个路由而来
@@ -28,19 +28,20 @@ router.beforeEach(async (to: any, from: any) => {
     if (to.path == '/login') {
       return { path: '/' }
     } else {
-      // 登录成功访问其余六个路由(登录排除)
-      // 有用户信息
-      if (username) {
+      // 登录成功访问其余路由(登录排除)
+      // 有用户信息且异步路由已加载
+      if (username && userStore.asyncRouteLoaded) {
         //放行
         return true
       } else {
-        //如果没有用户信息,在守卫这里发请求获取到了用户信息再放行
+        //如果没有用户信息或异步路由未加载,在守卫这里发请求获取到了用户信息再放行
         try {
-          //获取用户信息
+          //获取用户信息(会自动加载异步路由)
           await userStore.userInfo()
+          //路由已添加完成,使用nextTick确保路由完全注册后再放行
+          await new Promise((resolve) => setTimeout(resolve, 0))
           //放行
-          //万一:刷新的时候是异步路由,有可能获取到用户信息、异步路由还没有加载完毕,出现空白的效果
-          return true
+          return { ...to, replace: true }
         } catch (error) {
           // token过期:获取不到用户信息了
           // 用户手动修改本地存储token
@@ -61,7 +62,7 @@ router.beforeEach(async (to: any, from: any) => {
 })
 
 //全局后置守卫
-router.afterEach((to: any, from: any) => {
+router.afterEach((to: any) => {
   document.title = `${setting.title} - ${to.meta.title}`
   nprogress.done()
 })

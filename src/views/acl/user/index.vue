@@ -20,13 +20,7 @@
       <el-table-column label="ID" align="center" prop="id"></el-table-column>
       <el-table-column label="用户名字" align="center" prop="username" show-overflow-tooltip></el-table-column>
       <el-table-column label="用户名称" align="center" prop="name" show-overflow-tooltip></el-table-column>
-      <el-table-column label="用户角色" align="center">
-        <template #default="{ row }">
-          <el-tooltip :content="row.roleName || '未分配角色'" placement="top">
-            <span class="role-cell">{{ row.roleName }}</span>
-          </el-tooltip>
-        </template>
-      </el-table-column>
+      <el-table-column label="用户角色" align="center" prop="roleName" show-overflow-tooltip :formatter="formatRoleName"></el-table-column>
       <el-table-column label="创建时间" align="center" prop="createTime" show-overflow-tooltip></el-table-column>
       <el-table-column label="更新时间" align="center" prop="updateTime" show-overflow-tooltip></el-table-column>
       <el-table-column label="操作" width="300px" align="center">
@@ -85,7 +79,7 @@
           <el-checkbox @change="handleCheckAllChange" v-model="checkAll" :indeterminate="isIndeterminate">全选</el-checkbox>
           <!-- 显示角色的复选框 -->
           <el-checkbox-group v-model="userRoleIds" @change="handleCheckedCitiesChange">
-            <el-checkbox v-for="role in allRole" :key="role.id ?? role.ID" :label="role.id ?? role.ID">{{ role.roleName }}</el-checkbox>
+            <el-checkbox v-for="role in allRole" :key="role.id ?? role.ID" :value="role.id ?? role.ID">{{ role.roleName }}</el-checkbox>
           </el-checkbox-group>
         </el-form-item>
       </el-form>
@@ -132,6 +126,11 @@
   let formRef = ref<any>()
   //定义响应式数据:收集用户输入进来的关键字
   let keyword = ref<string>('')
+
+  //格式化角色名称，空值显示'未分配角色'
+  const formatRoleName = (_row: any, _column: any) => {
+    return _row.roleName || '未分配角色'
+  }
 
   //组件挂载完毕
   onMounted(() => {
@@ -323,9 +322,9 @@
   }
   .role-cell {
     cursor: pointer;
-    color: #409eff;
+    color: #000;
   }
   .role-cell:hover {
-    text-decoration: underline;
+    text-decoration: none;
   }
 </style>

@@ -11,6 +11,7 @@ export interface UserState {
   username: string
   avatar: string
   buttons: string[]
+  asyncRouteLoaded: boolean
 }
 
 //定义分类仓库state对象的ts类型

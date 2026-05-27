@@ -6,8 +6,24 @@ import type { loginFormData, loginResponseData, userInfoReponseData } from '@/ap
 import type { UserState } from './types/type'
 //引入操作本地存储的工具方法
 import { SET_TOKEN, GET_TOKEN, REMOVE_TOKEN } from '@/utils/token'
+import router from '@/router'
+// @ts-ignore
+import cloneDeep from 'lodash/cloneDeep'
+import { nextTick } from 'vue'
 //引入路由(常量路由)
-import { constantRoute } from '@/router/routes'
+import { constantRoute, asyncRoute, anyRoute } from '@/router/routes'
+//用于过滤当前用户需要展示的异步路由
+function filterAsyncRoute(asyncRoute: any, routes: any) {
+  return asyncRoute.filter((item: any) => {
+    if (routes.includes(item.name)) {
+      if (item.children && item.children.length > 0) {
+        //硅谷333账号:product\trademark\attr\sku
+        item.children = filterAsyncRoute(item.children, routes)
+      }
+      return true
+    }
+  })
+}
 
 //创建用户小仓库
 const useUserStore = defineStore('User', {
@@ -20,6 +36,8 @@ const useUserStore = defineStore('User', {
       avatar: '',
       //存储当前用户是否包含某一个按钮
       buttons: [],
+      //标记异步路由是否已加载
+      asyncRouteLoaded: false,
     }
   },
   //异步|逻辑的地方
@@ -58,7 +76,18 @@ const useUserStore = defineStore('User', {
       if (result.code == 200) {
         this.username = result.data.roles[0]
         this.avatar = result.data.avatar
-
+        this.buttons = result.data.buttons
+        //计算当前用户需要展示的异步路由
+        const userAsyncRoute = filterAsyncRoute(cloneDeep(asyncRoute), result.data.routes)
+        this.menuRoutes = [...constantRoute, ...userAsyncRoute, anyRoute]
+        //目前路由器管理的只有常量路由:用户计算完毕异步路由、任意路由动态追加
+        ;[...userAsyncRoute, anyRoute].forEach((route: any) => {
+          router.addRoute(route)
+        })
+        //等待下一个tick确保路由已完全注册
+        await nextTick()
+        //标记异步路由已加载
+        this.asyncRouteLoaded = true
         return 'ok'
       } else {
         return Promise.reject(new Error(result.message))
@@ -74,18 +103,15 @@ const useUserStore = defineStore('User', {
         this.token = ''
         this.username = ''
         this.avatar = ''
+        this.buttons = []
+        this.asyncRouteLoaded = false
+        this.menuRoutes = constantRoute
         REMOVE_TOKEN()
         return 'ok'
       } else {
         return Promise.reject(new Error(result.message))
       }
     },
-    // userLogout() {
-    //   this.token = ''
-    //   this.username = ''
-    //   this.avatar = ''
-    //   REMOVE_TOKEN()
-    // },
   },
   getters: {},
 })

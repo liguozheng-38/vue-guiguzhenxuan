@@ -44,7 +44,7 @@
     height: 100vh;
 
     .layout_slider {
-      color: white;
+      // color: white;
       width: $base-menu-width;
       height: 100vh;
       background: $base-menu-background;
@@ -78,7 +78,6 @@
     }
 
     .layout_main {
-      background-color: hotpink;
       position: absolute;
       width: calc(100% - $base-menu-width);
       height: calc(100vh - $base-tabbar-height);
@@ -93,5 +92,11 @@
         left: $base-menu-min-width;
       }
     }
+  }
+</style>
+<style lang="scss">
+  // 暗黑模式下的main区域背景色
+  .dark .layout_main {
+    background-color: #1a1a2e;
   }
 </style>

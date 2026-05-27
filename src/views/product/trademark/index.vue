@@ -12,12 +12,12 @@
         <!-- table-column:默认展示数据用div -->
         <el-table-column label="品牌名称" prop="tmName"> </el-table-column>
         <el-table-column label="品牌LOGO">
-          <template #="{ row, $index }">
+          <template #="{ row }">
             <img :src="row.logoUrl" style="width: 100px; height: 100px" />
           </template>
         </el-table-column>
         <el-table-column label="品牌操作">
-          <template #="{ row, $index }">
+          <template #="{ row }">
             <el-button type="primary" size="small" icon="Edit" @click="updateTrademark(row)"></el-button>
             <el-popconfirm :title="`您确定要删除${row.tmName}?`" width="250px" icon="Delete" @confirm="removeTradeMark(row.id)">
               <template #reference>
@@ -48,8 +48,7 @@
           <el-input placeholder="请您输入品牌名称" v-model="trademarkParams.tmName"></el-input>
         </el-form-item>
         <el-form-item label="品牌LOGO" label-width="100px" prop="logoUrl">
-          <!-- upload组件属性:action图片上传路径书写/api,代理服务器不发送这次post请求  -->
-          <el-upload class="avatar-uploader" :action="uploadAction" name="file" :show-file-list="false" :on-success="handleAvatarSuccess" :before-upload="beforeAvatarUpload">
+          <el-upload class="avatar-uploader" :show-file-list="false" :http-request="handleHttpRequest" :before-upload="beforeAvatarUpload">
             <img v-if="trademarkParams.logoUrl" :src="trademarkParams.logoUrl" class="avatar" />
             <el-icon v-else class="avatar-uploader-icon">
               <Plus />
@@ -69,14 +68,14 @@
 <script setup lang="ts">
   // import { ElMessage, UploadProps, formEmits } from 'element-plus'
   import { ElMessage } from 'element-plus'
-  import type { UploadProps, FormEmits } from 'element-plus'
+  import type { UploadProps } from 'element-plus'
   //引入组合式API函数ref
   import { ref, onMounted, reactive, nextTick } from 'vue'
   import { reqHasTrademark, reqAddOrUpdateTrademark, reqDeleteTrademark } from '@/api/product/trademark'
   import type { TradeMarkPageResponseData, TradeMark } from '@/api/product/trademark/type'
-  // 添加上传路径变量 （使用环境变量确保代理正确转发）
+  //添加上传路径变量 （使用环境变量确保代理正确转发）
   //图片上传路径
-  const uploadAction = `${import.meta.env.VITE_APP_BASE_API}/admin/product/fileUpload`
+  const uploadUrl = `${import.meta.env.VITE_APP_BASE_API}/admin/product/fileUpload`
 
   //当前页码
   let pageNo = ref<number>(1)
@@ -233,27 +232,42 @@
       return false
     }
   }
-  //图片上传成功钩子
-  const handleAvatarSuccess: UploadProps['onSuccess'] = (response, uploadFile) => {
-    //response:即为当前这次上传图片post请求服务器返回的数据
-    //收集上传图片的地址,添加一个新的品牌的时候带给服务器
-    trademarkParams.logoUrl = response.data
-    //图片上传成功,清除掉对应图片校验结果
-    formRef.value.clearValidate('logoUrl')
-  }
-  //图片上传失败钩子
-  const handleAvatarError: UploadProps['onError'] = (error) => {
-    //上传失败时显示错误提示
-    ElMessage({
-      type: 'error',
-      message: '图片上传失败，将使用默认图片',
-    })
-    //清空logoUrl，允许继续添加品牌
-    trademarkParams.logoUrl = ''
+  //自定义上传方法，携带token
+  const handleHttpRequest = async (options: any) => {
+    const { file, onSuccess, onError } = options
+    const formData = new FormData()
+    formData.append('file', file)
+    try {
+      const response = await fetch(uploadUrl, {
+        method: 'POST',
+        headers: {
+          token: localStorage.getItem('TOKEN') || '',
+        },
+        body: formData,
+      })
+      const result = await response.json()
+      if (result.code === 200) {
+        trademarkParams.logoUrl = result.data
+        formRef.value.clearValidate('logoUrl')
+        onSuccess(result)
+      } else {
+        ElMessage({
+          type: 'error',
+          message: result.message || '图片上传失败',
+        })
+        onError(new Error(result.message || '上传失败'))
+      }
+    } catch (error) {
+      ElMessage({
+        type: 'error',
+        message: '图片上传失败，请检查网络连接',
+      })
+      onError(error as Error)
+    }
   }
 
   //品牌自定义校验规则方法
-  const validatorTmName = (rule: any, value: any, callBack: any) => {
+  const validatorTmName = (_rule: any, value: any, callBack: any) => {
     //是当表单元素触发blur时候,会触发此方法
     //自定义校验规则
     if (value.trim().length >= 2) {
@@ -264,7 +278,7 @@
     }
   }
   //品牌LOGO图片的自定义校验规则方法
-  const validatorLogoUrl = (rule: any, value: any, callBack: any) => {
+  const validatorLogoUrl = (_rule: any, value: any, callBack: any) => {
     //如果图片上传
     if (value) {
       callBack()
@@ -276,6 +290,7 @@
   //表单校验规则对象
   const rules = {
     tmName: [{ required: true, trigger: 'blur', validator: validatorTmName }],
+    logoUrl: [{ required: true, trigger: 'change', validator: validatorLogoUrl }],
   }
   //气泡确认框确定按钮的回调
   const removeTradeMark = async (id: number) => {

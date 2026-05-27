@@ -12,11 +12,7 @@
       <el-input type="textarea" placeholder="请你输入SPU描述" v-model="SpuParams.description"></el-input>
     </el-form-item>
     <el-form-item label="SPU图片">
-      <!-- v-model:fileList->展示默认图片 
-                 action:上传图片的接口地址
-                 list-type:文件列表的类型
-            -->
-      <el-upload v-model:file-list="imgList" :action="uploadAction" list-type="picture-card" :on-preview="handlePictureCardPreview" :on-remove="handleRemove" :before-upload="handlerUpload">
+      <el-upload v-model:file-list="imgList" list-type="picture-card" :on-preview="handlePictureCardPreview" :on-remove="handleRemove" :http-request="handleHttpRequest" :before-upload="handlerUpload">
         <el-icon>
           <Plus />
         </el-icon>
@@ -64,7 +60,9 @@
   import { ref, computed } from 'vue'
   import { reqAllTradeMark, reqSpuImageList, reqSpuHasSaleAttr, reqAllSaleAttr, reqAddOrUpdateSpu } from '@/api/product/spu'
   import type { SaleAttrValue, HasSaleAttr, SaleAttr, Trademark, AllTradeMark, SpuHasImg, SaleAttrResponseData, HasSaleAttrResponseData } from '@/api/product/spu/type'
-  import { ElMessage } from 'element-plus'
+  import { ElMessage, type UploadFile } from 'element-plus'
+  import request from '@/utils/request'
+
   let $emit = defineEmits(['changeScene'])
   //点击取消按钮:通知父组件切换场景为1,展示有的SPU的数据
   const cancel = () => {
@@ -82,8 +80,6 @@
   let dialogVisible = ref<boolean>(false)
   //存储预览图片地址
   let dialogImageUrl = ref<string>('')
-  //文件上传地址
-  const uploadAction = `${import.meta.env.VITE_APP_BASE_API}/admin/product/fileUpload`
   //存储已有的SPU对象
   let SpuParams = ref<SpuData>({
     category3Id: '', //收集三级分类的ID
@@ -123,17 +119,17 @@
     allSaleAttr.value = result3.data
   }
   //照片墙点击预览按钮的时候触发的钩子
-  const handlePictureCardPreview = (file: any) => {
-    dialogImageUrl.value = file.url
+  const handlePictureCardPreview = (file: UploadFile) => {
+    dialogImageUrl.value = file.url || ''
     //对话框弹出来
     dialogVisible.value = true
   }
   //照片墙删除文件钩子
-  const handleRemove = (_file: any, _files: any) => {
+  const handleRemove = (_file: unknown, _files: unknown[]) => {
     console.log(123)
   }
   //照片钱上传成功之前的钩子约束文件的大小与类型
-  const handlerUpload = (file: any) => {
+  const handlerUpload = (file: File) => {
     if (file.type == 'image/png' || file.type == 'image/jpeg' || file.type == 'image/gif') {
       if (file.size / 1024 / 1024 < 3) {
         return true
@@ -150,6 +146,40 @@
         message: '上传文件务必PNG|JPG|GIF',
       })
       return false
+    }
+  }
+
+  //自定义上传方法，携带token
+  interface UploadResult {
+    code: number
+    data: string
+    message: string
+  }
+  const handleHttpRequest = async (options: any) => {
+    const { file, onSuccess, onError } = options
+    const formData = new FormData()
+    formData.append('file', file)
+    try {
+      const result = (await request({
+        url: '/admin/product/fileUpload',
+        method: 'POST',
+        data: formData,
+      })) as UploadResult
+      if (result.code === 200) {
+        onSuccess(result)
+      } else {
+        ElMessage({
+          type: 'error',
+          message: result.message || '图片上传失败',
+        })
+        onError(new Error(result.message || '上传失败'))
+      }
+    } catch (error) {
+      ElMessage({
+        type: 'error',
+        message: '图片上传失败，请检查网络连接',
+      })
+      onError(error as Error)
     }
   }
 
@@ -172,10 +202,10 @@
     "saleAttrName": string,
     "spuSaleAttrValueList": SpuSaleAttrValueList
     */
-    const [baseSaleAttrId, saleAttrName] = saleAttrIdAndValueName.value.split(':')
+    const [baseSaleAttrIdStr, saleAttrName] = saleAttrIdAndValueName.value.split(':')
     //准备一个新的销售属性对象:将来带给服务器即可
     let newSaleAttr: SaleAttr = {
-      baseSaleAttrId,
+      baseSaleAttrId: Number(baseSaleAttrIdStr) || 0,
       saleAttrName,
       spuSaleAttrValueList: [],
     }
@@ -197,7 +227,7 @@
     const { baseSaleAttrId, saleAttrValue } = row
     //整理成服务器需要的属性值形式
     let newSaleAttrValue: SaleAttrValue = {
-      baseSaleAttrId,
+      baseSaleAttrId: Number(baseSaleAttrId) || 0,
       saleAttrValueName: saleAttrValue as string,
     }
 
@@ -243,6 +273,10 @@
     })
     //2:整理销售属性的数据
     SpuParams.value.spuSaleAttrList = saleAttr.value
+    //3:确保category3Id和tmId是数字类型
+    SpuParams.value.category3Id = Number(SpuParams.value.category3Id) || 0
+    SpuParams.value.tmId = Number(SpuParams.value.tmId) || 0
+
     let result = await reqAddOrUpdateSpu(SpuParams.value)
     if (result.code == 200) {
       ElMessage({
@@ -253,8 +287,8 @@
       $emit('changeScene', { flag: 0, params: SpuParams.value.id ? 'update' : 'add' })
     } else {
       ElMessage({
-        type: 'success',
-        message: SpuParams.value.id ? '更新成功' : '添加成功',
+        type: 'error',
+        message: result.message || (SpuParams.value.id ? '更新失败' : '添加失败'),
       })
     }
   }
@@ -289,4 +323,3 @@
 </script>
 
 <style scoped></style>
-
