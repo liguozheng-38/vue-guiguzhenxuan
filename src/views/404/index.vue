@@ -64,7 +64,11 @@ const goBack = () => {
 .floating-circle {
   position: absolute;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(99, 102, 241, 0.3) 0%, transparent 70%);
+  background: radial-gradient(
+    circle,
+    rgba(99, 102, 241, 0.3) 0%,
+    transparent 70%
+  );
   animation: float 8s ease-in-out infinite;
 }
 
@@ -109,7 +113,8 @@ const goBack = () => {
 }
 
 @keyframes float {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0) rotate(0deg);
     opacity: 0.6;
   }
@@ -160,7 +165,8 @@ const goBack = () => {
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
     filter: drop-shadow(0 0 20px rgba(102, 126, 234, 0.5));
   }

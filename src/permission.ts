@@ -5,6 +5,7 @@ import setting from './setting'
 import nprogress from 'nprogress'
 //引入进度条样式
 import 'nprogress/nprogress.css'
+import type { RouteLocationNormalized } from 'vue-router'
 nprogress.configure({ showSpinner: false })
 //获取用户相关的小仓库内部token数据,去判断用户是否登录成功
 import useUserStore from './store/modules/user'
@@ -12,7 +13,7 @@ import pinia from './store'
 const userStore = useUserStore(pinia)
 //全局守卫:项目当中任意路由切换都会触发的钩子
 //全局前置守卫
-router.beforeEach(async (to: any) => {
+router.beforeEach(async (to: RouteLocationNormalized) => {
   // document.title = `${setting.title} - ${to.meta.title}`
   //to:你将要访问那个路由
   //from:你从来个路由而来
@@ -28,24 +29,22 @@ router.beforeEach(async (to: any) => {
     if (to.path == '/login') {
       return { path: '/' }
     } else {
-      // 登录成功访问其余路由(登录排除)
+      // console.log('[守卫] path:', to.path, 'username:', !!username, 'asyncRouteLoaded:', userStore.asyncRouteLoaded)
       // 有用户信息且异步路由已加载
       if (username && userStore.asyncRouteLoaded) {
         //放行
+        // console.log('[守卫] 放行', to.path, '路由表:', router.getRoutes().map(r => r.name))
         return true
       } else {
         //如果没有用户信息或异步路由未加载,在守卫这里发请求获取到了用户信息再放行
+        // console.log('[守卫] 调用 userInfo，当前路由表:', router.getRoutes().map(r => r.name))
         try {
-          //获取用户信息(会自动加载异步路由)
           await userStore.userInfo()
-          //路由已添加完成,使用nextTick确保路由完全注册后再放行
-          await new Promise((resolve) => setTimeout(resolve, 0))
-          //放行
+          // console.log('[守卫] userInfo 完成，路由表:', router.getRoutes().map(r => r.name))
+          //放行，重新触发导航以正确匹配动态路由
           return { ...to, replace: true }
         } catch (error) {
-          // token过期:获取不到用户信息了
-          // 用户手动修改本地存储token
-          // 退出登录->用户相关的数据清空
+          // console.error('[守卫] userInfo 失败:', error)
           await userStore.userLogout()
           return { path: '/login', query: { redirect: to.path } }
         }
@@ -62,7 +61,8 @@ router.beforeEach(async (to: any) => {
 })
 
 //全局后置守卫
-router.afterEach((to: any) => {
+router.afterEach((to: RouteLocationNormalized) => {
+  // console.log('[守卫] afterEach 最终到达:', to.path)
   document.title = `${setting.title} - ${to.meta.title}`
   nprogress.done()
 })

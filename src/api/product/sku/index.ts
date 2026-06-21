@@ -1,6 +1,11 @@
 //SKU模块接口管理
 import request from '@/utils/request'
-import type { SkuResponseData, SkuInfoData, SpuImageListResponse, SpuSaleAttrListResponse } from './type'
+import type {
+  SkuResponseData,
+  SkuInfoData,
+  SpuImageListResponse,
+  SpuSaleAttrListResponse,
+} from './type'
 
 const API = {
   //获取已有的商品的数据-SKU
@@ -20,22 +25,42 @@ const API = {
 }
 
 //获取商品SKU的接口
-export const reqSkuList = (page: number, limit: number) => request.get<any, SkuResponseData>(API.SKU_URL + `${page}/${limit}`)
+export const reqSkuList = (page: number, limit: number) =>
+  request.get<unknown, SkuResponseData>(API.SKU_URL + `${page}/${limit}`)
 
 //已有商品上架的请求
-export const reqSaleSku = (skuId: number) => request.post<any, any>(API.SALE_URL + skuId)
+export const reqSaleSku = async (skuId: number) => {
+  const res: any = await request.post<unknown, any>(API.SALE_URL + skuId)
+  // 部分后端可能使用 GET 方式，上报 209 表示路径不存在，尝试回退到 GET
+  if (res && res.code === 209) {
+    return request.get<unknown, any>(API.SALE_URL + skuId)
+  }
+  return res
+}
 
-//下架的请求
-export const reqCancelSale = (skuId: number) => request.post<any, any>(API.CANCELSALE_URL + skuId)
+//下架的请求（兼容 POST / GET）
+export const reqCancelSale = async (skuId: number) => {
+  const res: any = await request.post<unknown, any>(API.CANCELSALE_URL + skuId)
+  if (res && res.code === 209) {
+    return request.get<unknown, any>(API.CANCELSALE_URL + skuId)
+  }
+  return res
+}
 
 //获取商品详情的接口
-export const reqSkuInfo = (skuId: number) => request.get<any, SkuInfoData>(API.SKUINFO_URL + skuId)
+export const reqSkuInfo = (skuId: number) =>
+  request.get<unknown, SkuInfoData>(API.SKUINFO_URL + skuId)
 
 //删除某一个已有的商品
-export const reqRemoveSku = (skuId: number) => request.delete<any, any>(API.DELETESKU_URL + skuId)
+import type { ResponseData } from './type'
+
+export const reqRemoveSku = (skuId: number) =>
+  request.delete(API.DELETESKU_URL + skuId) as unknown as Promise<ResponseData>
 
 //获取SPU图片列表
-export const reqSpuImageList = (spuId: number) => request.get<any, SpuImageListResponse>(API.SPUIMAGE_URL + spuId)
+export const reqSpuImageList = (spuId: number) =>
+  request.get<unknown, SpuImageListResponse>(API.SPUIMAGE_URL + spuId)
 
 //获取SPU销售属性列表
-export const reqSpuSaleAttrList = (spuId: number) => request.get<any, SpuSaleAttrListResponse>(API.SPUSALEATTR_URL + spuId)
+export const reqSpuSaleAttrList = (spuId: number) =>
+  request.get<unknown, SpuSaleAttrListResponse>(API.SPUSALEATTR_URL + spuId)

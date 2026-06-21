@@ -34,7 +34,10 @@ let useCategoryStore = defineStore('Category', {
         if (result.code == 200) {
           this.c1Arr = result.data
         } else {
-          ElMessage({ type: 'error', message: result.message || '获取一级分类失败' })
+          ElMessage({
+            type: 'error',
+            message: result.message || '获取一级分类失败',
+          })
         }
       } catch (error) {
         // console.error('获取一级分类异常:', error)
@@ -51,7 +54,10 @@ let useCategoryStore = defineStore('Category', {
         if (result.code == 200) {
           this.c2Arr = result.data
         } else {
-          ElMessage({ type: 'error', message: result.message || '获取二级分类失败' })
+          ElMessage({
+            type: 'error',
+            message: result.message || '获取二级分类失败',
+          })
         }
       } catch (error) {
         // console.error('获取二级分类异常:', error)
@@ -67,7 +73,10 @@ let useCategoryStore = defineStore('Category', {
         if (result.code == 200) {
           this.c3Arr = result.data
         } else {
-          ElMessage({ type: 'error', message: result.message || '获取三级分类失败' })
+          ElMessage({
+            type: 'error',
+            message: result.message || '获取三级分类失败',
+          })
         }
       } catch (error) {
         // console.error('获取三级分类异常:', error)

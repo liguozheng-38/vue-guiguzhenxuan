@@ -14,46 +14,46 @@
 </template>
 
 <script setup lang="ts">
-  import { getTime } from '@/utils/time'
-  //引入用户相关的仓库,获取当前用户的头像、昵称
-  import useUserStore from '@/store/modules/user'
-  //获取存储用户信息的仓库对象
-  const userStore = useUserStore()
+import { getTime } from '@/utils/time'
+//引入用户相关的仓库,获取当前用户的头像、昵称
+import useUserStore from '@/store/modules/user'
+//获取存储用户信息的仓库对象
+const userStore = useUserStore()
 </script>
 
 <style scoped lang="scss">
-  .box {
-    display: flex;
+.box {
+  display: flex;
 
-    .avatar {
-      width: 100px;
-      height: 100px;
-      border-radius: 50%;
+  .avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+  }
+
+  .bottom {
+    margin-left: 20px;
+
+    .title {
+      font-size: 30px;
+      font-weight: 900;
+      margin-bottom: 30px;
     }
 
-    .bottom {
-      margin-left: 20px;
-
-      .title {
-        font-size: 30px;
-        font-weight: 900;
-        margin-bottom: 30px;
-      }
-
-      .subtitle {
-        font-style: italic;
-        color: skyblue;
-      }
+    .subtitle {
+      font-style: italic;
+      color: skyblue;
     }
   }
-  .bottoms {
-    margin-top: 20px;
-    display: flex;
-    justify-content: center;
+}
+.bottoms {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
 
-    .welcome-img {
-      width: 600px;
-      height: 300px;
-    }
+  .welcome-img {
+    width: 600px;
+    height: 300px;
   }
+}
 </style>

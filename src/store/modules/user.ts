@@ -1,119 +1,180 @@
 //创建用户相关的小仓库
 import { defineStore } from 'pinia'
+import { ref, nextTick } from 'vue'
+import router from '@/router'
+import type { RouteRecordRaw } from 'vue-router'
 //引入接口
 import { reqLogin, reqUserInfo, reqLogout } from '@/api/user'
-import type { loginFormData, loginResponseData, userInfoReponseData } from '@/api/user/type'
-import type { UserState } from './types/type'
+import type {
+  loginFormData,
+  loginResponseData,
+  userInfoReponseData,
+  ResponseData,
+} from '@/api/user/type'
 //引入操作本地存储的工具方法
 import { SET_TOKEN, GET_TOKEN, REMOVE_TOKEN } from '@/utils/token'
-import router from '@/router'
-// @ts-ignore
+//@ts-expect-error lodash 无 TS 声明
 import cloneDeep from 'lodash/cloneDeep'
-import { nextTick } from 'vue'
 //引入路由(常量路由)
 import { constantRoute, asyncRoute, anyRoute } from '@/router/routes'
-//用于过滤当前用户需要展示的异步路由
-function filterAsyncRoute(asyncRoute: any, routes: any) {
-  return asyncRoute.filter((item: any) => {
-    if (routes.includes(item.name)) {
-      if (item.children && item.children.length > 0) {
-        //硅谷333账号:product\trademark\attr\sku
-        item.children = filterAsyncRoute(item.children, routes)
-      }
-      return true
-    }
-  })
+
+// 深拷贝并过滤路由：cloneDeep 保证嵌套对象不共享引用，再恢复 component 函数
+function filterAsyncRoute(
+  routes: RouteRecordRaw[],
+  allowedNames: string[],
+): RouteRecordRaw[] {
+  const cloned = cloneDeep(routes) as RouteRecordRaw[]
+  return restoreComponents(filterByNames(cloned, allowedNames), routes)
 }
 
-//创建用户小仓库
-const useUserStore = defineStore('User', {
-  //小仓库存储数据地方
-  state: (): UserState => {
+// 递归恢复 component 函数引用（cloneDeep 破坏动态 import，从原始路由取回）
+function restoreComponents(
+  filtered: RouteRecordRaw[],
+  originals: RouteRecordRaw[],
+): RouteRecordRaw[] {
+  const restored = filtered.map((item) => {
+    const original = originals.find((o) => o.name === item.name)
+    const component = original?.component ?? item.component
     return {
-      token: GET_TOKEN(), //用户唯一标识token
-      menuRoutes: constantRoute, //仓库存储生成菜单需要数组(路由)
-      username: '',
-      avatar: '',
-      //存储当前用户是否包含某一个按钮
-      buttons: [],
-      //标记异步路由是否已加载
-      asyncRouteLoaded: false,
-    }
-  },
-  //异步|逻辑的地方
-  actions: {
-    //用户登录的方法
-    async userLogin(data: loginFormData) {
-      //登录请求
-      const loginData: loginResponseData = await reqLogin(data)
-      //登录请求:成功200->token
-      //登录请求:失败201->登录失败错误的信息
-      if (loginData.code == 200) {
-        //pinia仓库存储一下token
-        //由于pinia|vuex存储数据其实利用js对象
-        //   this.token = loginData.data as string
-        //   //本地存储持久化存储一份
-        //   SET_TOKEN(loginData.data as string)
-        //   //能保证当前async函数返回一个成功的promise
-        //   return 'ok'
-        // } else {
-        //   return Promise.reject(new Error(loginData.data))
-        // }
-        // 直接从 data 对象里取 token，类型会自动推断为 string
-        const token = loginData.data
-        this.token = token
-        SET_TOKEN(token)
-        return 'ok'
-      } else {
-        return Promise.reject(new Error(loginData.message))
-      }
-    },
-    // //获取用户信息方法
-    async userInfo() {
-      //获取用户信息进行存储仓库当中[用户头像、名字]
-      const result: userInfoReponseData = await reqUserInfo()
-      //如果获取用户信息成功，存储一下用户信息
-      if (result.code == 200) {
-        this.username = result.data.roles[0]
-        this.avatar = result.data.avatar
-        this.buttons = result.data.buttons
-        //计算当前用户需要展示的异步路由
-        const userAsyncRoute = filterAsyncRoute(cloneDeep(asyncRoute), result.data.routes)
-        this.menuRoutes = [...constantRoute, ...userAsyncRoute, anyRoute]
-        //目前路由器管理的只有常量路由:用户计算完毕异步路由、任意路由动态追加
-        ;[...userAsyncRoute, anyRoute].forEach((route: any) => {
-          router.addRoute(route)
-        })
-        //等待下一个tick确保路由已完全注册
-        await nextTick()
-        //标记异步路由已加载
-        this.asyncRouteLoaded = true
-        return 'ok'
-      } else {
-        return Promise.reject(new Error(result.message))
-      }
-    },
+      ...item,
+      component: component ?? undefined,
+      children: item.children
+        ? restoreComponents(item.children, original?.children || [])
+        : undefined,
+    } as RouteRecordRaw
+  })
+  return restored
+}
 
-    //退出登录
-    async userLogout() {
-      //退出登录请求
-      const result: any = await reqLogout()
-      if (result.code == 200) {
-        //目前没有mock接口:退出登录接口(通知服务器本地用户唯一标识失效)
-        this.token = ''
-        this.username = ''
-        this.avatar = ''
-        this.buttons = []
-        this.asyncRouteLoaded = false
-        this.menuRoutes = constantRoute
-        REMOVE_TOKEN()
-        return 'ok'
-      } else {
-        return Promise.reject(new Error(result.message))
+// 从深拷贝中按名称过滤，子路由匹配时自动保留父路由
+function filterByNames(
+  routes: RouteRecordRaw[],
+  allowedNames: string[],
+): RouteRecordRaw[] {
+  const filtered = routes
+    .map((item) => {
+      const filteredChildren = item.children
+        ? filterByNames(item.children, allowedNames)
+        : undefined
+      const hasMatchingChild = filteredChildren && filteredChildren.length > 0
+      const selfMatch = allowedNames.includes(item.name as string)
+      // 自身匹配或任意子路由匹配，则保留
+      if (selfMatch || hasMatchingChild) {
+        return {
+          ...item,
+          children: filteredChildren,
+        } as RouteRecordRaw
       }
-    },
+      return null
+    })
+    .filter((item): item is RouteRecordRaw => item !== null)
+  return filtered
+}
+
+// Repository
+const api = {
+  login: async (data: loginFormData) => await reqLogin(data),
+  getUserInfo: async () => await reqUserInfo(),
+  logout: async () => await reqLogout(),
+  filterAsyncRoute: (routes: string[]) => filterAsyncRoute(asyncRoute, routes),
+  getUserRoutes: (routes: string[]) => {
+    const userAsyncRoute = api.filterAsyncRoute(routes)
+    return [...constantRoute, ...userAsyncRoute, anyRoute]
   },
-  getters: {},
+}
+
+//创建用户小仓库 - 组合式API
+const useUserStore = defineStore('User', () => {
+  const token = ref<string>(GET_TOKEN())
+  const menuRoutes = ref<RouteRecordRaw[]>([...constantRoute])
+  const username = ref<string>('')
+  const avatar = ref<string>('')
+  const buttons = ref<string[]>([])
+  const asyncRouteLoaded = ref<boolean>(false)
+
+  //用户登录
+  const userLogin = async (data: loginFormData) => {
+    const loginData: loginResponseData = await api.login(data)
+    if (loginData.code == 200) {
+      token.value = loginData.data
+      SET_TOKEN(loginData.data)
+      return 'ok'
+    } else {
+      return Promise.reject(new Error(loginData.message))
+    }
+  }
+
+  //获取用户信息
+  const userInfo = async () => {
+    const result: userInfoReponseData = await api.getUserInfo()
+    if (result.code == 200) {
+      username.value = result.data.roles[0]
+      avatar.value = result.data.avatar
+      buttons.value = result.data.buttons
+
+      const userAsyncRoute = api.filterAsyncRoute(result.data.routes)
+      // console.log('[userInfo] routes:', result.data.routes, 'buttons:', result.data.buttons)
+      menuRoutes.value = api.getUserRoutes(result.data.routes)
+      // console.log('[userInfo] menuRoutes after:', menuRoutes.value.map((r: RouteRecordRaw) => r.name))
+
+      // 动态追加异步路由 + 兜底路由
+      ;[...userAsyncRoute, anyRoute].forEach((route) => {
+        router.addRoute(route)
+      })
+      await nextTick()
+      asyncRouteLoaded.value = true
+      return 'ok'
+    } else {
+      return Promise.reject(new Error(result.message))
+    }
+  }
+
+  //退出登录
+  const userLogout = async () => {
+    const result: ResponseData = await api.logout()
+    if (result.code == 200) {
+      token.value = ''
+      username.value = ''
+      avatar.value = ''
+      buttons.value = []
+      asyncRouteLoaded.value = false
+      menuRoutes.value = [...constantRoute]
+
+      // 移除动态添加的路由
+      asyncRoute.forEach((route) => {
+        if (router.hasRoute(route.name as string)) {
+          router.removeRoute(route.name as string)
+        }
+        if (route.children) {
+          route.children.forEach((child) => {
+            if (router.hasRoute(child.name as string)) {
+              router.removeRoute(child.name as string)
+            }
+          })
+        }
+      })
+      if (router.hasRoute(anyRoute.name as string)) {
+        router.removeRoute(anyRoute.name as string)
+      }
+
+      REMOVE_TOKEN()
+      return 'ok'
+    } else {
+      return Promise.reject(new Error(result.message))
+    }
+  }
+
+  return {
+    token,
+    menuRoutes,
+    username,
+    avatar,
+    buttons,
+    asyncRouteLoaded,
+    userLogin,
+    userInfo,
+    userLogout,
+  }
 })
-//对外暴露获取小仓库方法
+
 export default useUserStore

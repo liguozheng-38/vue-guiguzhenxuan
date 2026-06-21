@@ -20,7 +20,9 @@ export default defineConfig(({ mode }) => {
 
       // SVG 图标配置
       createSvgIconsPlugin({
-        iconDirs: [fileURLToPath(new URL('./src/assets/icons', import.meta.url))],
+        iconDirs: [
+          fileURLToPath(new URL('./src/assets/icons', import.meta.url)),
+        ],
         symbolId: 'icon-[dir]-[name]',
       }),
 
@@ -64,7 +66,8 @@ export default defineConfig(({ mode }) => {
           changeOrigin: true,
           //路径重写
           // rewrite: (path) => path.replace(/^\/api/, ''),
-          rewrite: (path) => path.replace(new RegExp(`^${env.VITE_APP_BASE_API}`), ''),
+          rewrite: (path) =>
+            path.replace(new RegExp(`^${env.VITE_APP_BASE_API}`), ''),
         },
       },
     },

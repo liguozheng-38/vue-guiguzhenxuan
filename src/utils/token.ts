@@ -12,3 +12,11 @@ export const GET_TOKEN = () => {
 export const REMOVE_TOKEN = () => {
   localStorage.removeItem('TOKEN')
 }
+
+// ============ 主题颜色本地存储 ============
+export const SET_THEME_COLOR = (color: string) => {
+  localStorage.setItem('THEME_COLOR', color)
+}
+export const GET_THEME_COLOR = () => {
+  return localStorage.getItem('THEME_COLOR') || '#409EFF'
+}

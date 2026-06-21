@@ -1,6 +1,11 @@
 //角色管理模块的接口
 import request from '@/utils/request'
-import type { RoleResponseData, RoleData, MenuResponseData } from './type'
+import type {
+  RoleResponseData,
+  RoleData,
+  MenuResponseData,
+  ResponseData,
+} from './type'
 
 const API = {
   //获取角色分页列表
@@ -20,28 +25,37 @@ const API = {
 //获取角色分页列表
 export const reqRoleList = (page: number, limit: number, roleName?: string) => {
   const params = roleName ? `?roleName=${roleName}` : ''
-  return request.get<any, RoleResponseData>(API.ROLE_LIST_URL + `${page}/${limit}` + params)
+  return request.get<unknown, RoleResponseData>(
+    API.ROLE_LIST_URL + `${page}/${limit}` + params,
+  )
 }
 
 //添加角色与更新已有角色接口
 export const reqAddOrUpdateRole = (data: RoleData) => {
   if (data.id) {
-    return request.put<any, any>(API.UPDATE_ROLE_URL, data)
+    return request.put<unknown, any>(API.UPDATE_ROLE_URL, data)
   } else {
-    return request.post<any, any>(API.ADD_ROLE_URL, data)
+    return request.post<unknown, any>(API.ADD_ROLE_URL, data)
   }
 }
 
 //获取全部菜单与按钮权限数据
-export const reqAllMenuList = (roleId: number) => request.get<any, MenuResponseData>(API.ALL_PERMISSION_URL + roleId)
+export const reqAllMenuList = (roleId: number) =>
+  request.get<unknown, MenuResponseData>(API.ALL_PERMISSION_URL + roleId)
 
 //给角色分配权限
+
 export const reqSetPermission = (roleId: number, permissionId: number[]) => {
   const params = new URLSearchParams()
   params.append('roleId', String(roleId))
-  permissionId.forEach((id) => params.append('permissionId', String(id)))
-  return request.post(`${API.SET_PERMISSION_URL}?${params.toString()}`)
+  params.append('permissionId', permissionId.join(','))
+  return request.post<unknown, ResponseData>(
+    `${API.SET_PERMISSION_URL}?${params.toString()}`,
+  )
 }
 
 //删除角色
-export const reqRemoveRole = (roleId: number) => request.delete<any, any>(API.REMOVE_ROLE_URL + roleId)
+export const reqRemoveRole = (roleId: number) =>
+  request.delete(
+    API.REMOVE_ROLE_URL + roleId,
+  ) as unknown as Promise<ResponseData>
