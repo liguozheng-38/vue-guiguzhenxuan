@@ -132,6 +132,7 @@ import type {
   TradeMark,
   TradeMarkPageResponseData,
   ResponseData,
+  TradeMarkListResponseData,
 } from '@/api/product/trademark/type'
 import {
   reqHasTrademark,
@@ -172,7 +173,7 @@ const getHasTrademark = async (pager = 1) => {
 
   const kw = keyword.value && keyword.value.trim()
   if (kw) {
-    const allRes: any = await reqTrademarkList()
+    const allRes: TradeMarkListResponseData = await reqTrademarkList()
     if (allRes && allRes.code === 200) {
       const list: TradeMark[] = allRes.data || []
       const filtered = list.filter((t) =>

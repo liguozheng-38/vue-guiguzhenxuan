@@ -63,7 +63,12 @@
       </div>
     </el-form-item>
     <el-form-item label="图片名称">
-      <el-table border :data="imgArr" ref="table">
+      <el-table
+        border
+        :data="imgArr"
+        ref="table"
+        @selection-change="onSelectionChange"
+      >
         <el-table-column
           type="selection"
           width="80px"
@@ -72,7 +77,7 @@
         <el-table-column label="图片">
           <template #="{ row }">
             <img
-              :src="normalizeImageUrl(row.imgUrl)"
+              :src="row.displayUrl"
               alt=""
               style="width: 100px; height: 100px"
             />
@@ -121,13 +126,14 @@ import { normalizeImageUrl } from '@/utils/imageUrl'
 //扩展类型：额外的临时字段用于模板交互
 type AttrWithExtra = Attr & { attrIdAndValueId?: string }
 type SaleAttrWithExtra = SaleAttr & { saleIdAndValueId?: string }
+type SpuImgWithDisplay = SpuImg & { displayUrl: string } // 添加显示URL字段
 
 //平台属性
 let attrArr = ref<AttrWithExtra[]>([])
 //销售属性
 let saleArr = ref<SaleAttrWithExtra[]>([])
 //照片的数据
-let imgArr = ref<SpuImg[]>([])
+let imgArr = ref<SpuImgWithDisplay[]>([])
 //获取table组件实例
 let table = ref<InstanceType<typeof ElTable>>()
 //收集SKU的参数
@@ -173,10 +179,11 @@ const initSkuData = async (
   attrArr.value = result?.data || []
   //销售属性
   saleArr.value = result1?.data
-  //图片
+  //图片：保留原始URL用于保存，添加displayUrl用于显示
   imgArr.value = (result2?.data || []).map((item) => ({
     ...item,
-    imgUrl: normalizeImageUrl(item.imgUrl || item.url || ''),
+    imgUrl: item.imgUrl || item.url || '', // 保留原始URL用于保存
+    displayUrl: normalizeImageUrl(item.imgUrl || item.url || ''), // 处理后的URL用于显示
   }))
 }
 //取消按钮的回调
@@ -185,15 +192,19 @@ const cancel = () => {
 }
 
 //设置默认图片的方法回调
-const handler = (row: { skuDefaultImg?: string; [key: string]: any }) => {
-  //点击的时候,全部图片的的复选框不勾选
+const handler = (row: SpuImgWithDisplay) => {
   imgArr.value.forEach((item) => {
     table.value?.toggleRowSelection(item, false)
   })
-  //选中的图片才勾选
   table.value?.toggleRowSelection(row, true)
-  //收集图片地址
-  skuParams.skuDefaultImg = (row.imgUrl as string) || '' // 提交给后端的不做转换
+  skuParams.skuDefaultImg = (row.imgUrl as string) || ''
+}
+
+// 勾选 checkbox 时自动设为默认图
+const onSelectionChange = (rows: SpuImgWithDisplay[]) => {
+  if (rows.length > 0) {
+    skuParams.skuDefaultImg = (rows[rows.length - 1].imgUrl as string) || ''
+  }
 }
 //对外暴露方法
 defineExpose({
@@ -207,9 +218,9 @@ const save = async () => {
   skuParams.skuAttrValueList = attrArr.value.reduce<
     { attrId: string; valueId: string }[]
   >((prev, next) => {
-    const t = (next as any).attrIdAndValueId
+    const t = next.attrIdAndValueId
     if (t) {
-      let [attrId, valueId] = (t as string).split(':')
+      let [attrId, valueId] = t.split(':')
       prev.push({
         attrId,
         valueId,
@@ -220,18 +231,19 @@ const save = async () => {
   //销售属性
   skuParams.skuSaleAttrValueList = saleArr.value.reduce<SaleArrType[]>(
     (prev, next) => {
-      const t = (next as any).saleIdAndValueId
+      const t = next.saleIdAndValueId
       if (t) {
-        let [saleAttrId, saleAttrValueId] = (t as string).split(':')
+        let [saleAttrId, saleAttrValueId] = t.split(':')
         prev.push({
           saleAttrId,
           saleAttrValueId,
-        } as unknown as SaleArrType)
+        })
       }
       return prev
     },
     [],
   )
+
   //添加SKU的请求
   let result: ResponseData = await reqAddSku(skuParams)
   if (result.code == 200) {

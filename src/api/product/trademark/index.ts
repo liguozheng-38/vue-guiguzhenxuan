@@ -1,6 +1,11 @@
 ///书写品牌管理模块接口
 import request from '@/utils/request'
-import type { TradeMarkPageResponseData, TradeMark } from './type'
+import type {
+  TradeMarkPageResponseData,
+  TradeMark,
+  TradeMarkListResponseData,
+  ResponseData,
+} from './type'
 
 //品牌管理模块接口地址
 const API = {
@@ -21,7 +26,7 @@ const API = {
 
 //获取所有品牌接口方法
 export const reqTrademarkList = () =>
-  request.get<unknown, any>(API.TRADEMARK_LIST_URL)
+  request.get<unknown, TradeMarkListResponseData>(API.TRADEMARK_LIST_URL)
 
 //获取已有品牌的接口方法
 //page: 获取第几页 --- 默认第一页
@@ -43,13 +48,13 @@ export const reqHasTrademark = (
 export const reqAddOrUpdateTrademark = (data: TradeMark) => {
   //修改已有品牌的数据
   if (data.id) {
-    return request.put<unknown, any>(API.UPDATETRADEMARK_URL, data)
+    return request.put<unknown, ResponseData>(API.UPDATETRADEMARK_URL, data)
   } else {
     //新增品牌
-    return request.post<unknown, any>(API.ADDTRADEMARK_URL, data)
+    return request.post<unknown, ResponseData>(API.ADDTRADEMARK_URL, data)
   }
 }
 
 //删除某一个已有品牌的数据
 export const reqDeleteTrademark = (id: number) =>
-  request.delete<unknown, any>(API.DELETE_URL + id)
+  request.delete<unknown, ResponseData>(API.DELETE_URL + id)

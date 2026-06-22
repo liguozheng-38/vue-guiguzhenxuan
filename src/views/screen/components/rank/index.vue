@@ -91,7 +91,7 @@ onMounted(() => {
         itemStyle: {
           borderRadius: [10, 10, 0, 0],
           //柱条颜色
-          color: function (data: any) {
+          color: function (data: { dataIndex: number }) {
             //给每一个柱条这是背景颜色
             let arr = [
               'red',
@@ -102,7 +102,7 @@ onMounted(() => {
               'hotpink',
               'skyblue',
             ]
-            return arr[data.dataIndex]
+            return arr[data.dataIndex % arr.length]
           },
         },
       },
@@ -149,7 +149,7 @@ onMounted(() => {
         itemStyle: {
           borderRadius: [10, 10, 0, 0],
           //柱条颜色
-          color: function (data: any) {
+          color: function (data: { dataIndex: number }) {
             //给每一个柱条这是背景颜色
             let arr = [
               'red',
@@ -160,7 +160,7 @@ onMounted(() => {
               'hotpink',
               'skyblue',
             ]
-            return arr[data.dataIndex]
+            return arr[data.dataIndex % arr.length]
           },
         },
       },

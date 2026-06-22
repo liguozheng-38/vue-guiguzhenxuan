@@ -134,6 +134,10 @@ import SpuForm from './spuForm.vue'
 import SkuForm from './skuForm.vue'
 import { ElMessage } from 'element-plus'
 let categoryStore = useCategoryStore()
+// 进入页面时重置分类状态，避免继承其他页面的筛选条件
+categoryStore.c1Id = null
+categoryStore.c2Id = null
+categoryStore.c3Id = null
 //场景的数据
 let scene = ref<number>(0) //0:显示已有SPU  1:添加或者修改已有SPU 2:添加SKU的结构
 const loading = ref<boolean>(true)

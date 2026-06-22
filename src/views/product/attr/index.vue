@@ -100,7 +100,12 @@
             <!-- row:即为当前属性值对象 -->
             <template #="{ row, $index }">
               <el-input
-                :ref="(vc: unknown) => (inputArr[$index] = vc)"
+                :ref="
+                  (vc) =>
+                    (inputArr[$index] = vc as
+                      | InstanceType<typeof ElInput>
+                      | undefined)
+                "
                 v-if="row.flag"
                 @blur="toLook(row, $index)"
                 size="small"
@@ -146,8 +151,12 @@ import type { AttrResponseData, Attr, AttrValue } from '@/api/product/attr/type'
 import type { ResponseData } from '@/api/user/type'
 //获取分类的仓库
 import useCategoryStore from '@/store/modules/category'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElInput } from 'element-plus'
 let categoryStore = useCategoryStore()
+// 进入页面时重置分类状态，避免继承其他页面的筛选条件
+categoryStore.c1Id = null
+categoryStore.c2Id = null
+categoryStore.c3Id = null
 //存储已有的属性与属性值
 let attrArr = ref<Attr[]>([])
 let loading = ref<boolean>(true)
@@ -163,7 +172,7 @@ let attrParams = reactive<Attr>({
   categoryLevel: 3, //代表的是三级分类
 })
 //准备一个数组:将来存储对应的组件实例el-input
-let inputArr = ref<any>([])
+let inputArr = ref<(InstanceType<typeof ElInput> | undefined)[]>([])
 
 const getAttr = async () => {
   loading.value = true
@@ -180,7 +189,7 @@ const getAttr = async () => {
           ...item,
           attrName: item.name || item.attrName || '',
           attrValueList: (item.children || item.attrValueList || []).map(
-            (child: any) => {
+            (child: AttrValue | string) => {
               if (typeof child === 'string') {
                 return { valueName: child, flag: false }
               }
@@ -265,13 +274,23 @@ const addAttrValue = () => {
   })
   //获取最后el-input组件聚焦
   nextTick(() => {
-    inputArr.value[attrParams.attrValueList.length - 1].focus()
+    const lastInput = inputArr.value[attrParams.attrValueList.length - 1]
+    lastInput?.focus()
   })
 }
 //保存按钮的回调
 const save = async () => {
-  //发请求
-  let result: ResponseData = await reqAddOrUpdateAttr(attrParams)
+  // 清洗数据：去掉前端专用字段 flag，确保 categoryId 为数字
+  const payload = {
+    ...attrParams,
+    categoryId: Number(attrParams.categoryId),
+    attrValueList: attrParams.attrValueList.map((v) => ({
+      id: v.id,
+      attrId: v.attrId,
+      valueName: v.valueName,
+    })),
+  }
+  let result: ResponseData = await reqAddOrUpdateAttr(payload)
   //添加属性|修改已有的属性已经成功
   if (result.code == 200) {
     //切换场景
@@ -332,7 +351,8 @@ const toEdit = (row: AttrValue, $index: number) => {
   row.flag = true
   //nextTick:响应式数据发生变化,获取更新的DOM(组件实例)
   nextTick(() => {
-    inputArr.value[$index].focus()
+    const input = inputArr.value[$index]
+    input?.focus()
   })
 }
 

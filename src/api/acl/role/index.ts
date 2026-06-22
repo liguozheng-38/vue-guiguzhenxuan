@@ -33,9 +33,9 @@ export const reqRoleList = (page: number, limit: number, roleName?: string) => {
 //添加角色与更新已有角色接口
 export const reqAddOrUpdateRole = (data: RoleData) => {
   if (data.id) {
-    return request.put<unknown, any>(API.UPDATE_ROLE_URL, data)
+    return request.put<unknown, ResponseData>(API.UPDATE_ROLE_URL, data)
   } else {
-    return request.post<unknown, any>(API.ADD_ROLE_URL, data)
+    return request.post<unknown, ResponseData>(API.ADD_ROLE_URL, data)
   }
 }
 

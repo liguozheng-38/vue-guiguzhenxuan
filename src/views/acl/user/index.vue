@@ -210,7 +210,8 @@ import type {
   AllRoleResponseData,
   AllRole,
 } from '@/api/acl/user/type'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElForm } from 'element-plus'
+import type { CheckboxValueType } from 'element-plus'
 
 //默认页码
 let pageNo = ref<number>(1)
@@ -237,7 +238,7 @@ let userParams = reactive<User>({
 //准备一个数组存储批量删除的用户的ID
 let selectIdArr = ref<number[]>([])
 //获取form组件实例
-let formRef = ref<any>()
+let formRef = ref<InstanceType<typeof ElForm>>()
 //定义响应式数据:收集用户输入进来的关键字
 let keyword = ref<string>('')
 
@@ -302,6 +303,7 @@ const updateUser = (row: User) => {
 //保存按钮的回调
 const save = async () => {
   try {
+    if (!formRef.value) return
     await formRef.value.validate()
     let result = await reqAddOrUpdateUser(userParams)
     if (result.code == 200) {
@@ -395,7 +397,7 @@ const checkAll = ref<boolean>(false)
 const isIndeterminate = ref<boolean>(true)
 
 //顶部的全部复选框的change事件
-const handleCheckAllChange = (val: any) => {
+const handleCheckAllChange = (val: CheckboxValueType) => {
   const checked = Boolean(val)
   userRoleIds.value = checked
     ? allRole.value.map((r) => r.id ?? (r.ID as number))
@@ -403,12 +405,13 @@ const handleCheckAllChange = (val: any) => {
   isIndeterminate.value = false
 }
 
-//顶部全部的复选框的change事件
-const handleCheckedCitiesChange = (value: any) => {
-  const numValues = (value as any[]).map((v) => Number(v))
-  checkAll.value = numValues.length === allRole.value.length
+//底部的全部复选框的change事件
+const handleCheckedCitiesChange = (value: CheckboxValueType[]) => {
+  const numValues = value.map((v) => Number(v))
+  const checkedCount = numValues.length
+  checkAll.value = checkedCount === allRole.value.length
   isIndeterminate.value =
-    numValues.length > 0 && numValues.length !== allRole.value.length
+    checkedCount > 0 && checkedCount < allRole.value.length
 }
 
 //确定按钮的回调(分配角色)

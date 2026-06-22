@@ -217,8 +217,8 @@ const updateSale = async (row: SkuData) => {
     }
   } catch (err) {
     const msg =
-      err && (err as any).message
-        ? (err as any).message
+      err && (err as Error).message
+        ? (err as Error).message
         : '网络异常，请稍后重试'
     ElMessage({ type: 'error', message: msg })
   }

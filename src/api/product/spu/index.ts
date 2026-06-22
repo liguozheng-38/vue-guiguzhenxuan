@@ -9,6 +9,7 @@ import type {
   SpuHasImg,
   SaleAttrResponseData,
   HasSaleAttrResponseData,
+  ResponseData,
 } from './type'
 const API = {
   //获取已有的SPU的数据
@@ -59,14 +60,14 @@ export const reqAllSaleAttr = () =>
 export const reqAddOrUpdateSpu = (data: SpuData) => {
   //如果SPU对象拥有ID,更新已有的SPU
   if (data.id) {
-    return request.post<unknown, any>(API.UPDATESPU_URL, data)
+    return request.post<unknown, ResponseData>(API.UPDATESPU_URL, data)
   } else {
-    return request.post<unknown, any>(API.ADDSPU_URL, data)
+    return request.post<unknown, ResponseData>(API.ADDSPU_URL, data)
   }
 }
 //添加SKU的请求方法
 export const reqAddSku = (data: SkuData) =>
-  request.post<unknown, any>(API.ADDSKU_URL, data)
+  request.post<unknown, ResponseData>(API.ADDSKU_URL, data)
 
 //获取SKU数据
 export const reqSkuList = (spuId: number | string) =>
@@ -74,4 +75,4 @@ export const reqSkuList = (spuId: number | string) =>
 
 //删除已有的SPU
 export const reqRemoveSpu = (spuId: number | string) =>
-  request.delete<unknown, any>(API.REMOVESPU_URL + spuId)
+  request.delete<unknown, ResponseData>(API.REMOVESPU_URL + spuId)

@@ -4,6 +4,7 @@ import type {
   RolePermissionResponseData,
   AddMenuParams,
   UpdateMenuParams,
+  ResponseData,
 } from './type'
 
 //枚举地址
@@ -28,15 +29,15 @@ export const reqAllPermission = () =>
 
 //添加菜单
 export const reqAddMenu = (data: AddMenuParams) =>
-  request.post<unknown, any>(API.ADD_MENU_URL, data)
+  request.post<unknown, ResponseData>(API.ADD_MENU_URL, data)
 
 //更新菜单
 export const reqUpdateMenu = (data: UpdateMenuParams) =>
-  request.put<unknown, any>(API.UPDATE_MENU_URL, data)
+  request.put<unknown, ResponseData>(API.UPDATE_MENU_URL, data)
 
 //删除菜单
 export const reqRemoveMenu = (id: number) =>
-  request.delete<unknown, any>(API.DELETE_MENU_URL + id)
+  request.delete<unknown, ResponseData>(API.DELETE_MENU_URL + id)
 
 //根据角色获取菜单
 export const reqRolePermission = (roleId: number) =>
@@ -46,7 +47,7 @@ export const reqRolePermission = (roleId: number) =>
 
 //给角色分配权限
 export const reqAssignPermission = (roleId: number, permissionId: number[]) => {
-  return request.post<unknown, any>(
+  return request.post<unknown, ResponseData>(
     `${API.ASSIGN_PERMISSION_URL}?roleId=${roleId}&permissionId=${permissionId}`,
   )
 }

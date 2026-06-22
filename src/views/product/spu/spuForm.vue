@@ -265,13 +265,8 @@ interface UploadResult {
   data: string
   message: string
 }
-const handleHttpRequest = async (
-  options: UploadRequestOptions & {
-    onSuccess?: (res: any) => void
-    onError?: (err: any) => void
-  },
-) => {
-  const { file, onSuccess, onError } = options as any
+const handleHttpRequest = async (options: UploadRequestOptions) => {
+  const { file, onSuccess, onError } = options
   const formData = new FormData()
   formData.append('file', file)
   try {
@@ -281,20 +276,39 @@ const handleHttpRequest = async (
       data: formData,
     })) as UploadResult
     if (result.code === 200) {
+      // 将服务器返回的真实URL替换临时的blob URL
+      const uploadedFile = imgList.value.find((f) => f.uid === file.uid)
+      if (uploadedFile) {
+        uploadedFile.url = normalizeImageUrl(result.data)
+      }
       onSuccess && onSuccess(result)
     } else {
       ElMessage({
         type: 'error',
         message: result.message || '图片上传失败',
       })
-      onError && onError(new Error(result.message || '上传失败'))
+      onError &&
+        onError({
+          status: 0,
+          method: 'POST',
+          url: '/admin/product/fileUpload',
+          message: result.message || '上传失败',
+          name: 'UploadError',
+        })
     }
   } catch (error) {
     ElMessage({
       type: 'error',
       message: '图片上传失败，请检查网络连接',
     })
-    onError && onError(error as Error)
+    onError &&
+      onError({
+        status: 0,
+        method: 'POST',
+        url: '/admin/product/fileUpload',
+        message: '图片上传失败，请检查网络连接',
+        name: 'UploadError',
+      })
   }
 }
 
@@ -382,12 +396,13 @@ const save = async () => {
   //失败
   //1:照片墙的数据
   SpuParams.value.spuImageList = imgList.value.map((item: UploadFile) => {
+    const imgUrl =
+      (item.url as string) ||
+      (item.response as UploadResult | undefined)?.data ||
+      ''
     return {
       imgName: (item.name as string) || '', //图片的名字
-      imgUrl:
-        (item.response && (item.response as any).data) ||
-        (item.url as string) ||
-        '',
+      imgUrl: imgUrl as string,
     }
   })
   //2:整理销售属性的数据
