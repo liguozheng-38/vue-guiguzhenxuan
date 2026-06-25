@@ -1,27 +1,21 @@
 <template>
   <el-card>
-    <el-form :inline="true" class="form">
-      <el-form-item label="品牌搜索">
-        <el-input
-          placeholder="请输入搜索品牌关键字"
-          v-model="keyword"
-        ></el-input>
-      </el-form-item>
-      <el-form-item>
-        <el-button
-          type="primary"
-          size="default"
-          :disabled="!keyword"
-          @click="search"
-        >
-          搜索
-        </el-button>
-        <el-button type="primary" size="default" @click="reset">重置</el-button>
-      </el-form-item>
-    </el-form>
+    <SearchForm
+      v-model="keyword"
+      label="品牌搜索"
+      placeholder="请输入搜索品牌关键字"
+      @search="onSearch"
+      @reset="onReset"
+    />
   </el-card>
   <el-card style="margin: 10px 0px">
-    <el-button type="primary" size="default" icon="Plus" @click="addTrademark">
+    <el-button
+      type="primary"
+      size="default"
+      icon="Plus"
+      @click="addTrademark"
+      v-has="`btn.Trademark.add`"
+    >
       添加品牌
     </el-button>
     <el-table border style="margin: 10px 0px" :data="records">
@@ -50,6 +44,7 @@
             size="small"
             icon="Edit"
             @click="updateTrademark(row)"
+            v-has="`btn.Trademark.update`"
           >
             编辑
           </el-button>
@@ -59,7 +54,12 @@
             @confirm="removeTrademark(row.id ?? row.ID)"
           >
             <template #reference>
-              <el-button type="primary" size="small" icon="Delete">
+              <el-button
+                type="primary"
+                size="small"
+                icon="Delete"
+                v-has="`btn.Trademark.remove`"
+              >
                 删除
               </el-button>
             </template>
@@ -68,22 +68,20 @@
       </el-table-column>
     </el-table>
     <!-- 分页器 -->
-    <el-pagination
-      v-model:current-page="pageNo"
-      v-model:page-size="pageSize"
+    <Pageinator
+      v-model="pageNo"
+      v-model:pageSize="pageSize"
       :page-sizes="[10, 20, 30, 40]"
-      :background="true"
-      layout="prev, pager, next, jumper,->,sizes,total"
       :total="total"
-      @current-change="getHasTrademark"
-      @size-change="sizeChange"
+      @change="handlePageChange"
     />
   </el-card>
 
   <!-- 添加品牌|更新品牌对话框 -->
-  <el-dialog
+  <BaseDialog
     v-model="dialogVisible"
     :title="trademarkParams.id ? '更新品牌' : '添加品牌'"
+    @confirm="save"
   >
     <el-form :model="trademarkParams" :rules="rules" ref="formRef">
       <el-form-item label="品牌名称" prop="tmName">
@@ -112,13 +110,7 @@
         </el-upload>
       </el-form-item>
     </el-form>
-    <template #footer>
-      <span class="dialog-footer">
-        <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="save">确定</el-button>
-      </span>
-    </template>
-  </el-dialog>
+  </BaseDialog>
 </template>
 
 <script setup lang="ts">
@@ -198,19 +190,18 @@ const getHasTrademark = async (pager = 1) => {
   }
 }
 
-// 分页器下拉菜单发生变化的回调
-const sizeChange = () => {
-  getHasTrademark()
+// 分页器变化的回调
+const handlePageChange = (page: number) => {
+  getHasTrademark(page)
 }
 
 // 搜索按钮的回调
-const search = () => {
+const onSearch = () => {
   getHasTrademark(1)
 }
 
 // 重置按钮的回调
-const reset = () => {
-  keyword.value = ''
+const onReset = () => {
   getHasTrademark(1)
 }
 

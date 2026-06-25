@@ -180,11 +180,14 @@ const initSkuData = async (
   //销售属性
   saleArr.value = result1?.data
   //图片：保留原始URL用于保存，添加displayUrl用于显示
-  imgArr.value = (result2?.data || []).map((item) => ({
-    ...item,
-    imgUrl: item.imgUrl || item.url || '', // 保留原始URL用于保存
-    displayUrl: normalizeImageUrl(item.imgUrl || item.url || ''), // 处理后的URL用于显示
-  }))
+  imgArr.value = (result2?.data || []).map((item) => {
+    const rawUrl = item.imgUrl || item.url || ''
+    return {
+      ...item,
+      imgUrl: rawUrl, // 保留原始URL用于保存
+      displayUrl: rawUrl.startsWith('blob:') ? '' : normalizeImageUrl(rawUrl), // 过滤blob URL
+    }
+  })
 }
 //取消按钮的回调
 const cancel = () => {
@@ -197,13 +200,15 @@ const handler = (row: SpuImgWithDisplay) => {
     table.value?.toggleRowSelection(item, false)
   })
   table.value?.toggleRowSelection(row, true)
-  skuParams.skuDefaultImg = (row.imgUrl as string) || ''
+  const rawUrl = (row.imgUrl as string) || ''
+  skuParams.skuDefaultImg = rawUrl.startsWith('blob:') ? '' : rawUrl
 }
 
 // 勾选 checkbox 时自动设为默认图
 const onSelectionChange = (rows: SpuImgWithDisplay[]) => {
   if (rows.length > 0) {
-    skuParams.skuDefaultImg = (rows[rows.length - 1].imgUrl as string) || ''
+    const rawUrl = (rows[rows.length - 1].imgUrl as string) || ''
+    skuParams.skuDefaultImg = rawUrl.startsWith('blob:') ? '' : rawUrl
   }
 }
 //对外暴露方法

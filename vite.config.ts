@@ -1,8 +1,6 @@
 import { defineConfig, loadEnv } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { fileURLToPath, URL } from 'node:url'
-//引入svg需要用到插件
-import { createSvgIconsPlugin } from 'vite-plugin-svg-icons'
 
 // 按需引入插件
 import AutoImport from 'unplugin-auto-import/vite'
@@ -18,20 +16,12 @@ export default defineConfig(({ mode }) => {
     plugins: [
       vue(),
 
-      // SVG 图标配置
-      createSvgIconsPlugin({
-        iconDirs: [
-          fileURLToPath(new URL('./src/assets/icons', import.meta.url)),
-        ],
-        symbolId: 'icon-[dir]-[name]',
-      }),
-
       // Element Plus 自动按需引入
       AutoImport({
-        resolvers: [ElementPlusResolver()],
+        resolvers: [ElementPlusResolver({ importStyle: 'sass' })],
       }),
       Components({
-        resolvers: [ElementPlusResolver()],
+        resolvers: [ElementPlusResolver({ importStyle: 'sass' })],
       }),
 
       // ✅ mock 配置（开发环境启用）

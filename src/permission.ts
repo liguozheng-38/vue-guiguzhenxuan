@@ -29,22 +29,17 @@ router.beforeEach(async (to: RouteLocationNormalized) => {
     if (to.path == '/login') {
       return { path: '/' }
     } else {
-      // console.log('[守卫] path:', to.path, 'username:', !!username, 'asyncRouteLoaded:', userStore.asyncRouteLoaded)
       // 有用户信息且异步路由已加载
       if (username && userStore.asyncRouteLoaded) {
         //放行
-        // console.log('[守卫] 放行', to.path, '路由表:', router.getRoutes().map(r => r.name))
         return true
       } else {
         //如果没有用户信息或异步路由未加载,在守卫这里发请求获取到了用户信息再放行
-        // console.log('[守卫] 调用 userInfo，当前路由表:', router.getRoutes().map(r => r.name))
         try {
           await userStore.userInfo()
-          // console.log('[守卫] userInfo 完成，路由表:', router.getRoutes().map(r => r.name))
           //放行，重新触发导航以正确匹配动态路由
           return { ...to, replace: true }
-        } catch (error) {
-          // console.error('[守卫] userInfo 失败:', error)
+        } catch (_error) {
           await userStore.userLogout()
           return { path: '/login', query: { redirect: to.path } }
         }
@@ -62,7 +57,6 @@ router.beforeEach(async (to: RouteLocationNormalized) => {
 
 //全局后置守卫
 router.afterEach((to: RouteLocationNormalized) => {
-  // console.log('[守卫] afterEach 最终到达:', to.path)
   document.title = `${setting.title} - ${to.meta.title}`
   nprogress.done()
 })

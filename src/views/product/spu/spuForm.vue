@@ -232,7 +232,7 @@ const handlePictureCardPreview = (file: UploadFile) => {
 }
 //照片墙删除文件钩子
 const handleRemove = (_file: unknown, _files: unknown[]) => {
-  console.log(123)
+  ElMessage.success('删除成功')
 }
 //照片钱上传成功之前的钩子约束文件的大小与类型
 const handlerUpload = (file: File) => {
@@ -276,10 +276,11 @@ const handleHttpRequest = async (options: UploadRequestOptions) => {
       data: formData,
     })) as UploadResult
     if (result.code === 200) {
-      // 将服务器返回的真实URL替换临时的blob URL
-      const uploadedFile = imgList.value.find((f) => f.uid === file.uid)
-      if (uploadedFile) {
-        uploadedFile.url = normalizeImageUrl(result.data)
+      const serverUrl = normalizeImageUrl(result.data)
+      // 更新 imgList 中对应文件的 url
+      const idx = imgList.value.findIndex((f) => f.uid === file.uid)
+      if (idx !== -1) {
+        imgList.value[idx] = { ...imgList.value[idx], url: serverUrl }
       }
       onSuccess && onSuccess(result)
     } else {
@@ -296,7 +297,7 @@ const handleHttpRequest = async (options: UploadRequestOptions) => {
           name: 'UploadError',
         })
     }
-  } catch (error) {
+  } catch (_error) {
     ElMessage({
       type: 'error',
       message: '图片上传失败，请检查网络连接',
@@ -396,10 +397,12 @@ const save = async () => {
   //失败
   //1:照片墙的数据
   SpuParams.value.spuImageList = imgList.value.map((item: UploadFile) => {
-    const imgUrl =
-      (item.url as string) ||
-      (item.response as UploadResult | undefined)?.data ||
-      ''
+    // 获取图片URL：优先使用上传后的服务器URL，跳过blob URL
+    let imgUrl = (item.url as string) || ''
+    if (imgUrl.startsWith('blob:')) {
+      imgUrl = (item.response as UploadResult | undefined)?.data || ''
+    }
+    imgUrl = normalizeImageUrl(imgUrl)
     return {
       imgName: (item.name as string) || '', //图片的名字
       imgUrl: imgUrl as string,

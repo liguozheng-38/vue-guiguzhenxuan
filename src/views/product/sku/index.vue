@@ -48,18 +48,21 @@
             size="small"
             :icon="row.isSale == 1 ? 'Bottom' : 'Top'"
             @click="updateSale(row)"
+            v-has="`btn.Sku.updown`"
           ></el-button>
           <el-button
             type="primary"
             size="small"
             icon="Edit"
             @click="updateSku"
+            v-has="`btn.Sku.update`"
           ></el-button>
           <el-button
             type="primary"
             size="small"
             icon="InfoFilled"
             @click="findSku(row)"
+            v-has="`btn.Sku.detail`"
           ></el-button>
           <el-popconfirm
             :title="`你确定要删除${row.skuName}?`"
@@ -67,21 +70,23 @@
             @confirm="removeSku(row.id ?? row.ID)"
           >
             <template #reference>
-              <el-button type="primary" size="small" icon="Delete"></el-button>
+              <el-button
+                type="primary"
+                size="small"
+                icon="Delete"
+                v-has="`btn.Sku.remove`"
+              ></el-button>
             </template>
           </el-popconfirm>
         </template>
       </el-table-column>
     </el-table>
-    <el-pagination
-      v-model:current-page="pageNo"
-      v-model:page-size="pageSize"
+    <Pageinator
+      v-model="pageNo"
+      v-model:pageSize="pageSize"
       :page-sizes="[10, 20, 30, 40]"
-      :background="true"
-      layout="prev, pager, next, jumper,->,sizes,total"
       :total="total"
-      @current-change="getHasSku"
-      @size-change="handler"
+      @change="handlePageChange"
     />
     <!-- 抽屉组件:展示商品详情 -->
     <el-drawer v-model="drawer">
@@ -188,8 +193,9 @@ const getHasSku = async (pager = 1) => {
   }
 }
 
-const handler = () => {
-  getHasSku()
+// 分页器变化的回调
+const handlePageChange = (page: number) => {
+  getHasSku(page)
 }
 
 const updateSale = async (row: SkuData) => {

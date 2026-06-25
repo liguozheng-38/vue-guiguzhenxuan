@@ -67,7 +67,7 @@ const loadC1 = async () => {
     if (categoryStore.c1Id !== null && categoryStore.c1Id !== undefined) {
       await loadC2()
     }
-  } catch (error) {
+  } catch (_error) {
     ElMessage({ type: 'error', message: '获取一级分类失败' })
   }
 }
@@ -85,7 +85,7 @@ const loadC2 = async () => {
     if (categoryStore.c2Id !== null && categoryStore.c2Id !== undefined) {
       await loadC3()
     }
-  } catch (error) {
+  } catch (_error) {
     ElMessage({ type: 'error', message: '获取二级分类失败' })
   }
 }
@@ -100,7 +100,7 @@ const loadC3 = async () => {
     ) {
       ElMessage({ type: 'warning', message: '该二级分类下暂无三级分类' })
     }
-  } catch (error) {
+  } catch (_error) {
     ElMessage({ type: 'error', message: '获取三级分类失败' })
   }
 }

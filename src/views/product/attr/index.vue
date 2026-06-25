@@ -10,6 +10,7 @@
           size="default"
           icon="Plus"
           :disabled="categoryStore.c3Id ? false : true"
+          v-has="`btn.Attr.add`"
         >
           添加属性
         </el-button>
@@ -45,6 +46,7 @@
                 size="small"
                 icon="Edit"
                 @click="updateAttr(row)"
+                v-has="`btn.Attr.update`"
               ></el-button>
               <el-popconfirm
                 :title="`你确定删除${row.attrName}?`"
@@ -56,6 +58,7 @@
                     type="primary"
                     size="small"
                     icon="Delete"
+                    v-has="`btn.Attr.remove`"
                   ></el-button>
                 </template>
               </el-popconfirm>
@@ -207,7 +210,7 @@ const getAttr = async () => {
       attrArr.value = []
       ElMessage({ type: 'error', message: result.message || '获取属性失败' })
     }
-  } catch (error) {
+  } catch (_error) {
     attrArr.value = []
     ElMessage({ type: 'error', message: '获取属性失败，请检查网络或后端接口' })
   } finally {

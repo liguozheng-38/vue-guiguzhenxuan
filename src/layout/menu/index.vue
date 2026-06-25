@@ -4,14 +4,14 @@
     <template v-if="!item.children">
       <el-menu-item
         :index="item.path"
-        v-if="!item.meta.hidden"
+        v-if="!item.meta?.hidden"
         @click="goRoute"
       >
         <el-icon>
-          <component :is="item.meta.icon"></component>
+          <component :is="item.meta?.icon"></component>
         </el-icon>
         <template #title>
-          <span>{{ item.meta.title }}</span>
+          <span>{{ item.meta?.title }}</span>
         </template>
       </el-menu-item>
     </template>
@@ -19,14 +19,15 @@
     <template v-if="item.children && item.children.length == 1">
       <el-menu-item
         :index="item.children[0].path"
-        v-if="!item.children[0].meta.hidden"
+        v-if="!item.children[0].meta?.hidden"
         @click="goRoute"
+        :disabled="!item.children?.[0].meta"
       >
         <el-icon>
-          <component :is="item.children[0].meta.icon"></component>
+          <component :is="item.children[0].meta?.icon"></component>
         </el-icon>
         <template #title>
-          <span>{{ item.children[0].meta.title }}</span>
+          <span>{{ item.children[0].meta?.title }}</span>
         </template>
       </el-menu-item>
     </template>
@@ -37,9 +38,9 @@
     >
       <template #title>
         <el-icon>
-          <component :is="item.meta.icon"></component>
+          <component :is="item.meta?.icon"></component>
         </el-icon>
-        <span>{{ item.meta.title }}</span>
+        <span>{{ item.meta?.title }}</span>
       </template>
       <Menu :menuList="item.children"></Menu>
     </el-sub-menu>

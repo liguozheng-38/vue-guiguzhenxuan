@@ -11,6 +11,7 @@
           size="default"
           icon="Plus"
           :disabled="categoryStore.c3Id ? false : true"
+          v-has="`btn.Spu.add`"
         >
           添加SPU
         </el-button>
@@ -40,6 +41,7 @@
                 icon="Plus"
                 title="添加SKU"
                 @click="addSku(row)"
+                v-has="`btn.Spu.addsku`"
               ></el-button>
               <el-button
                 type="primary"
@@ -47,6 +49,7 @@
                 icon="Edit"
                 title="修改SPU"
                 @click="updateSpu(row)"
+                v-has="`btn.Spu.update`"
               ></el-button>
               <el-button
                 type="primary"
@@ -54,6 +57,7 @@
                 icon="View"
                 title="查看SKU列表"
                 @click="findSku(row)"
+                v-has="`btn.Spu.skus`"
               ></el-button>
               <el-popconfirm
                 :title="`你确定删除${row.spuName}?`"
@@ -66,6 +70,7 @@
                     size="small"
                     icon="Delete"
                     title="删除SPU"
+                    v-has="`btn.Spu.delete`"
                   ></el-button>
                 </template>
               </el-popconfirm>
@@ -73,15 +78,12 @@
           </el-table-column>
         </el-table>
         <!-- 分页器 -->
-        <el-pagination
-          v-model:current-page="pageNo"
-          v-model:page-size="pageSize"
+        <Pageinator
+          v-model="pageNo"
+          v-model:pageSize="pageSize"
           :page-sizes="[3, 5, 7, 9]"
-          :background="true"
-          layout="prev, pager, next, jumper,->,sizes,total"
           :total="total"
-          @current-change="getHasSpu"
-          @size-change="changeSize"
+          @change="handlePageChange"
         />
       </div>
       <!-- 添加SPU|修改SPU子组件 -->
@@ -195,9 +197,9 @@ const getHasSpu = async (pager = 1) => {
   }
   loading.value = false
 }
-//分页器下拉菜单发生变化的时候触发
-const changeSize = () => {
-  getHasSpu()
+// 分页器变化的回调
+const handlePageChange = (page: number) => {
+  getHasSpu(page)
 }
 
 //添加新的SPU按钮的回调

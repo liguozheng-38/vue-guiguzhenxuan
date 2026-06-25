@@ -1,29 +1,23 @@
 <template>
   <el-card>
     <!-- 角色搜索表单 -->
-    <el-form :inline="true" class="form">
-      <el-form-item label="角色搜索">
-        <el-input
-          placeholder="请输入搜索角色关键字"
-          v-model="keyword"
-        ></el-input>
-      </el-form-item>
-      <el-form-item>
-        <el-button
-          type="primary"
-          size="default"
-          :disabled="!keyword"
-          @click="search"
-        >
-          搜索
-        </el-button>
-        <el-button type="primary" size="default" @click="reset">重置</el-button>
-      </el-form-item>
-    </el-form>
+    <SearchForm
+      v-model="keyword"
+      label="角色搜索"
+      placeholder="请输入搜索角色关键字"
+      @search="onSearch"
+      @reset="onReset"
+    />
   </el-card>
   <el-card style="margin: 10px 0px">
     <!-- 添加角色按钮 -->
-    <el-button type="primary" size="default" icon="Plus" @click="addRole">
+    <el-button
+      type="primary"
+      size="default"
+      icon="Plus"
+      @click="addRole"
+      v-has="`btn.Role.add`"
+    >
       添加角色
     </el-button>
     <!-- 角色表格 -->
@@ -55,6 +49,7 @@
             size="small"
             icon="User"
             @click="setPermission(row)"
+            v-has="`btn.Role.assgin`"
           >
             分配权限
           </el-button>
@@ -63,6 +58,7 @@
             size="small"
             icon="Edit"
             @click="updateRole(row)"
+            v-has="`btn.Role.update`"
           >
             编辑
           </el-button>
@@ -72,7 +68,12 @@
             @confirm="removeRole(row.id ?? row.ID)"
           >
             <template #reference>
-              <el-button type="primary" size="small" icon="Delete">
+              <el-button
+                type="primary"
+                size="small"
+                icon="Delete"
+                v-has="`btn.Role.remove`"
+              >
                 删除
               </el-button>
             </template>
@@ -81,22 +82,20 @@
       </el-table-column>
     </el-table>
     <!-- 分页器 -->
-    <el-pagination
-      v-model:current-page="pageNo"
-      v-model:page-size="pageSize"
+    <Pageinator
+      v-model="pageNo"
+      v-model:pageSize="pageSize"
       :page-sizes="[10, 20, 30, 40]"
-      :background="true"
-      layout="prev, pager, next, jumper,->,sizes,total"
       :total="total"
-      @current-change="getHasRole"
-      @size-change="sizeChange"
+      @change="handlePageChange"
     />
   </el-card>
 
   <!-- 添加角色|更新角色对话框 -->
-  <el-dialog
+  <BaseDialog
     v-model="dialogVisible"
     :title="RoleParams.id ? '更新角色' : '添加角色'"
+    @confirm="save"
   >
     <el-form :model="RoleParams" :rules="rules" ref="form">
       <el-form-item label="角色名称" prop="roleName">
@@ -112,39 +111,21 @@
         ></el-input>
       </el-form-item>
     </el-form>
-    <template #footer>
-      <el-button type="primary" size="default" @click="dialogVisible = false">
-        取消
-      </el-button>
-      <el-button type="primary" size="default" @click="save">确定</el-button>
-    </template>
-  </el-dialog>
+  </BaseDialog>
 
   <!-- 抽屉组件:分配角色菜单权限 -->
-  <el-drawer v-model="drawer">
-    <template #header>
-      <h4>分配菜单与按钮的权限</h4>
-    </template>
-    <template #default>
-      <!-- 树形控件 -->
-      <el-tree
-        ref="tree"
-        :key="treeKey"
-        :data="menuArr"
-        show-checkbox
-        node-key="id"
-        default-expand-all
-        :default-checked-keys="selectArr"
-        :props="defaultProps"
-      />
-    </template>
-    <template #footer>
-      <div style="flex: auto">
-        <el-button @click="drawer = false">取消</el-button>
-        <el-button type="primary" @click="handler">确定</el-button>
-      </div>
-    </template>
-  </el-drawer>
+  <BaseDrawer v-model="drawer" title="分配菜单与按钮的权限" @confirm="handler">
+    <el-tree
+      ref="tree"
+      :key="treeKey"
+      :data="menuArr"
+      show-checkbox
+      node-key="id"
+      default-expand-all
+      :default-checked-keys="selectArr"
+      :props="defaultProps"
+    />
+  </BaseDrawer>
 </template>
 
 <script setup lang="ts">
@@ -218,19 +199,18 @@ const getHasRole = async (pager = 1) => {
   }
 }
 
-// 分页器下拉菜单发生变化的回调
-const sizeChange = () => {
-  getHasRole()
+// 分页器变化的回调
+const handlePageChange = (page: number) => {
+  getHasRole(page)
 }
 
 // 搜索按钮的回调
-const search = () => {
+const onSearch = () => {
   getHasRole(1)
 }
 
 // 重置按钮的回调
-const reset = () => {
-  keyword.value = ''
+const onReset = () => {
   getHasRole(1)
 }
 
@@ -286,8 +266,8 @@ const save = async () => {
       dialogVisible.value = false
       getHasRole(RoleParams.id ? pageNo.value : 1)
     }
-  } catch (error) {
-    console.log('表单校验失败:', error)
+  } catch (_error) {
+    ElMessage.error('表单校验失败，请检查角色名称是否至少两位')
   }
 }
 
@@ -332,10 +312,8 @@ const handler = async () => {
     }
     const checkedKeys = tree.value.getCheckedKeys()
     const halfCheckedKeys = tree.value.getHalfCheckedKeys()
-    // console.log('[分配权限] checkedKeys:', checkedKeys, 'halfCheckedKeys:', halfCheckedKeys)
     // 合并：全选节点 + 半选节点 = 完整的权限分配（1-3级菜单→routes[]，4级按钮→buttons[]）
     const permissionId = [...checkedKeys, ...halfCheckedKeys]
-    // console.log('[分配权限] 最终发送 permissionId:', permissionId)
 
     const result: ResponseData = await reqSetPermission(roleId, permissionId)
     if (result.code == 200) {

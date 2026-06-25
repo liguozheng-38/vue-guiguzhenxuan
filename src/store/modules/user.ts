@@ -113,10 +113,7 @@ const useUserStore = defineStore('User', () => {
       buttons.value = result.data.buttons
 
       const userAsyncRoute = api.filterAsyncRoute(result.data.routes)
-      // console.log('[userInfo] routes:', result.data.routes, 'buttons:', result.data.buttons)
       menuRoutes.value = api.getUserRoutes(result.data.routes)
-      // console.log('[userInfo] menuRoutes after:', menuRoutes.value.map((r: RouteRecordRaw) => r.name))
-
       // 动态追加异步路由 + 兜底路由
       ;[...userAsyncRoute, anyRoute].forEach((route) => {
         router.addRoute(route)

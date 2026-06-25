@@ -33,7 +33,6 @@ const changeIcon = () => {
   //图标进行切换
   LayOutSettingStore.fold = !LayOutSettingStore.fold
 }
-// console.log($route.matched)
 </script>
 
 <style scoped></style>

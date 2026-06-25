@@ -5,6 +5,8 @@
  */
 export const normalizeImageUrl = (url: string): string => {
   if (!url) return ''
+  // 过滤无效的 blob URL（浏览器临时创建的本地预览地址）
+  if (url.startsWith('blob:')) return ''
   if (url.startsWith('/api/')) {
     // 去掉 /api 前缀，补上 /dev-api 代理前缀
     // /api/static/xxx → /dev-api/static/xxx → proxy → backend /static/xxx

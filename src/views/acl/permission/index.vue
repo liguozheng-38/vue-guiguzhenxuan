@@ -19,6 +19,7 @@
           @click="addPermission(row)"
           size="small"
           :disabled="row.level == 4 ? true : false"
+          v-has="`btn.Permission.add`"
         >
           {{ row.level == 3 ? '添加功能' : '添加菜单' }}
         </el-button>
@@ -27,6 +28,7 @@
           @click="updatePermission(row)"
           size="small"
           :disabled="row.level == 1 ? true : false"
+          v-has="`btn.Permission.update`"
         >
           编辑
         </el-button>
@@ -40,6 +42,7 @@
               type="primary"
               size="small"
               :disabled="row.level == 1 ? true : false"
+              v-has="`btn.Permission.delete`"
             >
               删除
             </el-button>
@@ -50,11 +53,11 @@
   </el-table>
 
   <!-- 对话框组件:添加或者更新已有的菜单的数据结构 -->
-  <el-dialog
+  <BaseDialog
     v-model="dialogVisible"
     :title="menuData.id ? '更新菜单' : '添加菜单'"
+    @confirm="save"
   >
-    <!-- 表单组件:收集新增与已有的菜单的数据 -->
     <el-form :model="menuData">
       <el-form-item label="名称">
         <el-input
@@ -69,13 +72,7 @@
         ></el-input>
       </el-form-item>
     </el-form>
-    <template #footer>
-      <span class="dialog-footer">
-        <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="save">确定</el-button>
-      </span>
-    </template>
-  </el-dialog>
+  </BaseDialog>
 </template>
 
 <script setup lang="ts">
@@ -122,7 +119,6 @@ const getHasPermission = async () => {
   loading.value = true
   try {
     let result: PermissionResponseData = await reqAllPermission()
-    // console.log('菜单数据响应:', result)
     if (result.code == 200) {
       // 兼容两种数据结构：data本身是数组 或 data包含children属性
       permissionArr.value = Array.isArray(result.data)
@@ -130,10 +126,10 @@ const getHasPermission = async () => {
         : result.data.children || []
       loading.value = false
     } else {
-      console.log('接口返回失败:', result.message)
+      ElMessage.error(result.message)
     }
-  } catch (error) {
-    // console.error('获取菜单数据失败:', error)
+  } catch (_error) {
+    ElMessage.error('获取权限数据失败')
   }
 }
 
