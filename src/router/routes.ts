@@ -55,6 +55,17 @@ export const constantRoute = [
       icon: 'Platform',
     },
   },
+  // 任意路由：提前注册，避免刷新异步路由页面时出现 "No match found" 警告
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'Any',
+    component: { template: '<div></div>' },
+    meta: {
+      title: '任意路由',
+      hidden: true,
+      icon: 'DataLine',
+    },
+  },
 ]
 
 export const asyncRoute = [
@@ -147,15 +158,5 @@ export const asyncRoute = [
   },
 ]
 
-//任意路由
-export const anyRoute = {
-  //任意路由
-  path: '/:pathMatch(.*)*',
-  redirect: '/404',
-  name: 'Any',
-  meta: {
-    title: '任意路由',
-    hidden: true,
-    icon: 'DataLine',
-  },
-}
+//任意路由（已在 constantRoute 中注册，此处仅保留引用）
+export const anyRoute = constantRoute[constantRoute.length - 1]

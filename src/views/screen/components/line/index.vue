@@ -12,9 +12,9 @@
 import * as echarts from 'echarts'
 import { ref, onMounted } from 'vue'
 //获取图形图标的节点
-let line = ref()
+const line = ref()
 onMounted(() => {
-  let mycharts = echarts.init(line.value)
+  const mycharts = echarts.init(line.value)
   //设置配置项
   mycharts.setOption({
     //标题组件

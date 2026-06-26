@@ -8,14 +8,14 @@ import * as echarts from 'echarts'
 //引入中国地图的JSON数据
 import chinaJSON from './china.json'
 //获取DOM元素
-let map = ref()
+const map = ref()
 //注册中国地图
 echarts.registerMap(
   'china',
   chinaJSON as Parameters<typeof echarts.registerMap>[1],
 )
 onMounted(() => {
-  let mychart = echarts.init(map.value)
+  const mychart = echarts.init(map.value)
   //设置配置项
   mychart.setOption({
     //地图组件

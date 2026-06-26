@@ -149,36 +149,36 @@ import type {
 import { ElMessage } from 'element-plus'
 
 // 当前页码
-let pageNo = ref<number>(1)
+const pageNo = ref<number>(1)
 // 一页展示几条数据
-let pageSize = ref<number>(10)
+const pageSize = ref<number>(10)
 // 搜索角色关键字
-let keyword = ref<string>('')
+const keyword = ref<string>('')
 // 存储全部已有的角色
-let allRole = ref<Records>([])
+const allRole = ref<Records>([])
 // 角色总个数
-let total = ref<number>(0)
+const total = ref<number>(0)
 // 控制对话框的显示与隐藏
-let dialogVisible = ref<boolean>(false)
+const dialogVisible = ref<boolean>(false)
 // 获取form组件实例
-let form = ref()
+const form = ref()
 // 控制抽屉显示与隐藏
-let drawer = ref<boolean>(false)
+const drawer = ref<boolean>(false)
 
 // 收集新增角色数据
-let RoleParams = reactive<RoleData>({
+const RoleParams = reactive<RoleData>({
   roleName: '',
   remark: '',
 })
 
 // 准备一个数组:数组用于存储勾选的节点ID(四级)
-let selectArr = ref<number[]>([])
+const selectArr = ref<number[]>([])
 // 定义数组存储用户权限数据
-let menuArr = ref<MenuList>([])
+const menuArr = ref<MenuList>([])
 // 获取tree组件实例
-let tree = ref()
+const tree = ref()
 // 强制重建树节点，用于默认选中项更新
-let treeKey = ref<number>(0)
+const treeKey = ref<number>(0)
 
 // 组件挂载完毕
 onMounted(() => {
@@ -188,7 +188,7 @@ onMounted(() => {
 // 获取全部用户信息的方法|分页器当前页码发生变化的回调
 const getHasRole = async (pager = 1) => {
   pageNo.value = pager
-  let result: RoleResponseData = await reqRoleList(
+  const result: RoleResponseData = await reqRoleList(
     pageNo.value,
     pageSize.value,
     keyword.value,
@@ -260,7 +260,7 @@ const rules = {
 const save = async () => {
   try {
     await form.value?.validate()
-    let result: ResponseData = await reqAddOrUpdateRole(RoleParams)
+    const result: ResponseData = await reqAddOrUpdateRole(RoleParams)
     if (result.code == 200) {
       ElMessage.success(RoleParams.id ? '更新成功' : '添加成功')
       dialogVisible.value = false
@@ -275,7 +275,7 @@ const save = async () => {
 const setPermission = async (row: RoleData) => {
   drawer.value = true
   Object.assign(RoleParams, row)
-  let result: MenuResponseData = await reqAllMenuList(row.id as number)
+  const result: MenuResponseData = await reqAllMenuList(row.id as number)
   if (result.code == 200) {
     menuArr.value = result.data
     selectArr.value = filterSelectArr(menuArr.value, [])
@@ -330,7 +330,7 @@ const handler = async () => {
 // 删除已有的角色
 const removeRole = async (id: number | undefined) => {
   if (id === undefined) return
-  let result: ResponseData = await reqRemoveRole(id)
+  const result: ResponseData = await reqRemoveRole(id)
   if (result.code == 200) {
     ElMessage.success('删除成功')
     getHasRole(allRole.value.length > 1 ? pageNo.value : pageNo.value - 1)

@@ -170,13 +170,13 @@ import type {
 } from '@/api/product/sku/type'
 import { ElMessage } from 'element-plus'
 
-let pageNo = ref<number>(1)
-let pageSize = ref<number>(10)
+const pageNo = ref<number>(1)
+const pageSize = ref<number>(10)
 const loading = ref<boolean>(true)
-let total = ref<number>(0)
-let skuArr = ref<SkuData[]>([])
-let drawer = ref<boolean>(false)
-let skuInfo = ref<SkuData>({})
+const total = ref<number>(0)
+const skuArr = ref<SkuData[]>([])
+const drawer = ref<boolean>(false)
+const skuInfo = ref<SkuData>({})
 
 onMounted(() => {
   getHasSku()
@@ -185,7 +185,7 @@ onMounted(() => {
 const getHasSku = async (pager = 1) => {
   loading.value = true
   pageNo.value = pager
-  let result: SkuResponseData = await reqSkuList(pageNo.value, pageSize.value)
+  const result: SkuResponseData = await reqSkuList(pageNo.value, pageSize.value)
   if (result.code == 200) {
     total.value = result.data.total
     skuArr.value = result.data.records
@@ -231,18 +231,18 @@ const updateSale = async (row: SkuData) => {
 }
 
 const updateSku = () => {
-  ElMessage({ type: 'success', message: '程序员在努力的更新中....' })
+  ElMessage({ type: 'success', message: '码农努力更新中....' })
 }
 
 const findSku = async (row: SkuData) => {
   drawer.value = true
-  let result: SkuInfoData = await reqSkuInfo(row.id as number)
+  const result: SkuInfoData = await reqSkuInfo(row.id as number)
   skuInfo.value = result.data
 }
 
 const removeSku = async (id: number | undefined) => {
   if (id === undefined) return
-  let result: ResponseData = await reqRemoveSku(id)
+  const result: ResponseData = await reqRemoveSku(id)
   if (result.code == 200) {
     ElMessage({ type: 'success', message: '删除成功' })
     getHasSku(skuArr.value.length > 1 ? pageNo.value : pageNo.value - 1)

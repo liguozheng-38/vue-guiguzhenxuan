@@ -21,15 +21,15 @@
 import 'echarts-liquidfill'
 import * as echarts from 'echarts'
 import { ref, onMounted } from 'vue'
-let people = ref('215908人')
+const people = ref('215908人')
 
 //水球图拓展插件
 
 //获取节点
-let charts = ref()
+const charts = ref()
 onMounted(() => {
   //获取echarts类的实例
-  let mycharts = echarts.init(charts.value)
+  const mycharts = echarts.init(charts.value)
   //设置实例的配置项
   mycharts.setOption({
     //标题组件

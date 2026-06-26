@@ -20,11 +20,11 @@ import moment from 'moment'
 import { useRouter } from 'vue-router'
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 //获取路由器对象
-let $router = useRouter()
+const $router = useRouter()
 
 //存储当前时间
-let time = ref(moment().format('YYYY年MM月DD日 hh:mm:ss'))
-let timer = ref(0)
+const time = ref(moment().format('YYYY年MM月DD日 hh:mm:ss'))
+const timer = ref(0)
 //按钮的点击回调
 const goHome = () => {
   $router.push('/home')

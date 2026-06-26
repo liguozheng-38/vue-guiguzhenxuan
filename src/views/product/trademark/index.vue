@@ -134,24 +134,24 @@ import {
 } from '@/api/product/trademark'
 
 // 当前页码
-let pageNo = ref<number>(1)
+const pageNo = ref<number>(1)
 // 一页展示几条数据
-let pageSize = ref<number>(10)
+const pageSize = ref<number>(10)
 // 搜索品牌关键字
-let keyword = ref<string>('')
+const keyword = ref<string>('')
 // 品牌总个数
-let total = ref<number>(0)
+const total = ref<number>(0)
 // 存储已有品牌的数组
-let records = ref<TradeMark[]>([])
+const records = ref<TradeMark[]>([])
 // 对话框显示与隐藏
-let dialogVisible = ref<boolean>(false)
+const dialogVisible = ref<boolean>(false)
 // 收集品牌新增|修改的数据
-let trademarkParams = reactive<TradeMark>({
+const trademarkParams = reactive<TradeMark>({
   tmName: '',
   logoUrl: '',
 })
 // 获取form组件实例
-let formRef = ref()
+const formRef = ref()
 const loading = ref<boolean>(true)
 
 // 组件挂载完毕
@@ -179,7 +179,7 @@ const getHasTrademark = async (pager = 1) => {
     }
   }
 
-  let result: TradeMarkPageResponseData = await reqHasTrademark(
+  const result: TradeMarkPageResponseData = await reqHasTrademark(
     pageNo.value,
     pageSize.value,
   )
@@ -238,7 +238,7 @@ const save = async () => {
     if (trademarkParams.id) {
       submitData.id = trademarkParams.id
     }
-    let result: ResponseData = await reqAddOrUpdateTrademark(submitData)
+    const result: ResponseData = await reqAddOrUpdateTrademark(submitData)
     if (result.code == 200) {
       ElMessage({
         type: 'success',
@@ -336,7 +336,7 @@ const rules = {
 // 删除已有的品牌
 const removeTrademark = async (id: number | undefined) => {
   if (id === undefined) return
-  let result: ResponseData = await reqDeleteTrademark(id)
+  const result: ResponseData = await reqDeleteTrademark(id)
   if (result.code == 200) {
     ElMessage({ type: 'success', message: '删除品牌成功' })
     getHasTrademark(records.value.length > 1 ? pageNo.value : pageNo.value - 1)
@@ -358,8 +358,6 @@ const removeTrademark = async (id: number | undefined) => {
   align-items: center;
   height: 50px;
 }
-</style>
-<style>
 .avatar-uploader .el-upload {
   border: 1px dashed var(--el-border-color);
   border-radius: 6px;

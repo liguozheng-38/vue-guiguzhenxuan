@@ -16,7 +16,7 @@ import { SET_TOKEN, GET_TOKEN, REMOVE_TOKEN } from '@/utils/token'
 //@ts-expect-error lodash 无 TS 声明
 import cloneDeep from 'lodash/cloneDeep'
 //引入路由(常量路由)
-import { constantRoute, asyncRoute, anyRoute } from '@/router/routes'
+import { constantRoute, asyncRoute } from '@/router/routes'
 
 // 深拷贝并过滤路由：cloneDeep 保证嵌套对象不共享引用，再恢复 component 函数
 function filterAsyncRoute(
@@ -79,7 +79,7 @@ const api = {
   filterAsyncRoute: (routes: string[]) => filterAsyncRoute(asyncRoute, routes),
   getUserRoutes: (routes: string[]) => {
     const userAsyncRoute = api.filterAsyncRoute(routes)
-    return [...constantRoute, ...userAsyncRoute, anyRoute]
+    return [...constantRoute, ...userAsyncRoute]
   },
 }
 
@@ -114,8 +114,8 @@ const useUserStore = defineStore('User', () => {
 
       const userAsyncRoute = api.filterAsyncRoute(result.data.routes)
       menuRoutes.value = api.getUserRoutes(result.data.routes)
-      // 动态追加异步路由 + 兜底路由
-      ;[...userAsyncRoute, anyRoute].forEach((route) => {
+      // 动态追加异步路由（anyRoute 已在 constantRoute 中，无需重复添加）
+      userAsyncRoute.forEach((route) => {
         router.addRoute(route)
       })
       await nextTick()
@@ -137,7 +137,7 @@ const useUserStore = defineStore('User', () => {
       asyncRouteLoaded.value = false
       menuRoutes.value = [...constantRoute]
 
-      // 移除动态添加的路由
+      // 移除动态添加的路由（anyRoute 为常量路由，不移除）
       asyncRoute.forEach((route) => {
         if (router.hasRoute(route.name as string)) {
           router.removeRoute(route.name as string)
@@ -150,9 +150,6 @@ const useUserStore = defineStore('User', () => {
           })
         }
       })
-      if (router.hasRoute(anyRoute.name as string)) {
-        router.removeRoute(anyRoute.name as string)
-      }
 
       REMOVE_TOKEN()
       return 'ok'

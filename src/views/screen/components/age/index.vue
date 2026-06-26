@@ -13,12 +13,12 @@
 import { ref, onMounted } from 'vue'
 //引入echarts
 import * as echarts from 'echarts'
-let charts = ref()
+const charts = ref()
 //组件挂载完毕初始化图形图标
 onMounted(() => {
-  let mychart = echarts.init(charts.value)
+  const mychart = echarts.init(charts.value)
   //设置配置项
-  let option = {
+  const option = {
     tooltip: {
       trigger: 'item',
     },

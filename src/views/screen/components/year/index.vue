@@ -12,11 +12,11 @@
 import * as echarts from 'echarts'
 import { ref, onMounted } from 'vue'
 //获取DOM节点
-let charts = ref()
+const charts = ref()
 //组件挂载完毕
 onMounted(() => {
   //一个容器可以同时展示多种类型的图形图标
-  let mychart = echarts.init(charts.value)
+  const mychart = echarts.init(charts.value)
   //设置配置项
   mychart.setOption({
     title: {

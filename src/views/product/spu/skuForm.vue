@@ -129,15 +129,15 @@ type SaleAttrWithExtra = SaleAttr & { saleIdAndValueId?: string }
 type SpuImgWithDisplay = SpuImg & { displayUrl: string } // 添加显示URL字段
 
 //平台属性
-let attrArr = ref<AttrWithExtra[]>([])
+const attrArr = ref<AttrWithExtra[]>([])
 //销售属性
-let saleArr = ref<SaleAttrWithExtra[]>([])
+const saleArr = ref<SaleAttrWithExtra[]>([])
 //照片的数据
-let imgArr = ref<SpuImgWithDisplay[]>([])
+const imgArr = ref<SpuImgWithDisplay[]>([])
 //获取table组件实例
-let table = ref<InstanceType<typeof ElTable>>()
+const table = ref<InstanceType<typeof ElTable>>()
 //收集SKU的参数
-let skuParams = reactive<SkuData>({
+const skuParams = reactive<SkuData>({
   //父组件传递过来的数据
   category3Id: '', //三级分类的ID
   spuId: '', //已有的SPU的ID
@@ -170,11 +170,11 @@ const initSkuData = async (
   skuParams.spuId = spu.id
   skuParams.tmId = spu.tmId
   //获取平台属性
-  let result: AttrResponseData = await reqAttr(c1Id, c2Id, spu.category3Id)
+  const result: AttrResponseData = await reqAttr(c1Id, c2Id, spu.category3Id)
   //获取对应的销售属性
-  let result1: SaleAttrResponseData = await reqSpuHasSaleAttr(spu.id)
+  const result1: SaleAttrResponseData = await reqSpuHasSaleAttr(spu.id)
   //获取照片墙的数据
-  let result2: SpuHasImg = await reqSpuImageList(spu.id)
+  const result2: SpuHasImg = await reqSpuImageList(spu.id)
   //平台属性（接口可能返回 null）
   attrArr.value = result?.data || []
   //销售属性
@@ -225,7 +225,7 @@ const save = async () => {
   >((prev, next) => {
     const t = next.attrIdAndValueId
     if (t) {
-      let [attrId, valueId] = t.split(':')
+      const [attrId, valueId] = t.split(':')
       prev.push({
         attrId,
         valueId,
@@ -238,7 +238,7 @@ const save = async () => {
     (prev, next) => {
       const t = next.saleIdAndValueId
       if (t) {
-        let [saleAttrId, saleAttrValueId] = t.split(':')
+        const [saleAttrId, saleAttrValueId] = t.split(':')
         prev.push({
           saleAttrId,
           saleAttrValueId,
@@ -250,7 +250,7 @@ const save = async () => {
   )
 
   //添加SKU的请求
-  let result: ResponseData = await reqAddSku(skuParams)
+  const result: ResponseData = await reqAddSku(skuParams)
   if (result.code == 200) {
     ElMessage({
       type: 'success',
@@ -266,7 +266,7 @@ const save = async () => {
   }
 }
 //自定义事件的方法
-let $emit = defineEmits(['changeScene'])
+const $emit = defineEmits(['changeScene'])
 </script>
 
 <style scoped>

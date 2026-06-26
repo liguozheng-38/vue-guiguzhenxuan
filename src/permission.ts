@@ -31,14 +31,18 @@ router.beforeEach(async (to: RouteLocationNormalized) => {
     } else {
       // 有用户信息且异步路由已加载
       if (username && userStore.asyncRouteLoaded) {
+        // 异步路由已加载，若匹配到 anyRoute，说明路径不存在，跳转 404
+        if (to.name === 'Any') {
+          return { path: '/404', replace: true }
+        }
         //放行
         return true
       } else {
         //如果没有用户信息或异步路由未加载,在守卫这里发请求获取到了用户信息再放行
         try {
           await userStore.userInfo()
-          //放行，重新触发导航以正确匹配动态路由
-          return { ...to, replace: true }
+          // 只传 path，让路由器按路径重新匹配（避免 name: 'Any' 导致再次匹配 anyRoute）
+          return { path: to.path, replace: true }
         } catch (_error) {
           await userStore.userLogout()
           return { path: '/login', query: { redirect: to.path } }

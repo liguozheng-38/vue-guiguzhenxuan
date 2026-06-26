@@ -96,12 +96,12 @@ import type {
 import { ElMessage } from 'element-plus'
 
 //存储菜单的数据
-let permissionArr = ref<PermissionList>([])
+const permissionArr = ref<PermissionList>([])
 //控制对话框的显示与隐藏
-let dialogVisible = ref<boolean>(false)
+const dialogVisible = ref<boolean>(false)
 const loading = ref<boolean>(true)
 //携带的参数
-let menuData = reactive<AddMenuParams & { id?: number }>({
+const menuData = reactive<AddMenuParams & { id?: number }>({
   code: '',
   level: 0,
   name: '',
@@ -118,7 +118,7 @@ onMounted(() => {
 const getHasPermission = async () => {
   loading.value = true
   try {
-    let result: PermissionResponseData = await reqAllPermission()
+    const result: PermissionResponseData = await reqAllPermission()
     if (result.code == 200) {
       // 兼容两种数据结构：data本身是数组 或 data包含children属性
       permissionArr.value = Array.isArray(result.data)
@@ -192,7 +192,7 @@ const save = async () => {
 //删除按钮回调
 const removeMenu = async (id: number | undefined) => {
   if (id === undefined) return
-  let result: ResponseData = await reqRemoveMenu(id)
+  const result: ResponseData = await reqRemoveMenu(id)
   if (result.code == 200) {
     ElMessage({ type: 'success', message: '删除成功' })
     getHasPermission()

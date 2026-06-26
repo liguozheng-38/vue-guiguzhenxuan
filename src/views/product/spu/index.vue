@@ -135,22 +135,22 @@ import type { SpuData } from '@/api/product/spu/type'
 import SpuForm from './spuForm.vue'
 import SkuForm from './skuForm.vue'
 import { ElMessage } from 'element-plus'
-let categoryStore = useCategoryStore()
+const categoryStore = useCategoryStore()
 // 进入页面时重置分类状态，避免继承其他页面的筛选条件
 categoryStore.c1Id = null
 categoryStore.c2Id = null
 categoryStore.c3Id = null
 //场景的数据
-let scene = ref<number>(0) //0:显示已有SPU  1:添加或者修改已有SPU 2:添加SKU的结构
+const scene = ref<number>(0) //0:显示已有SPU  1:添加或者修改已有SPU 2:添加SKU的结构
 const loading = ref<boolean>(true)
 //分页器默认页码
-let pageNo = ref<number>(1)
+const pageNo = ref<number>(1)
 //每一页展示几条数据
-let pageSize = ref<number>(3)
+const pageSize = ref<number>(3)
 //存储已有的SPU的数据
-let records = ref<Records>([])
+const records = ref<Records>([])
 //存储已有SPU总个数
-let total = ref<number>(0)
+const total = ref<number>(0)
 //获取子组件实例SpuForm
 type SpuFormExpose = {
   initAddSpu: (c3Id: number | string) => Promise<void>
@@ -164,12 +164,12 @@ type SkuFormExpose = {
   ) => Promise<void>
 }
 
-let spu = ref<SpuFormExpose | null>(null)
+const spu = ref<SpuFormExpose | null>(null)
 //获取子组件实例SkuForm
-let sku = ref<SkuFormExpose | null>(null)
+const sku = ref<SkuFormExpose | null>(null)
 //存储全部的SKU数据
-let skuArr = ref<SkuData[]>([])
-let show = ref<boolean>(false)
+const skuArr = ref<SkuData[]>([])
+const show = ref<boolean>(false)
 //监听三级分类ID变化
 watch(
   () => categoryStore.c3Id,
@@ -186,7 +186,7 @@ watch(
 const getHasSpu = async (pager = 1) => {
   loading.value = true
   pageNo.value = pager
-  let result: HasSpuResponseData = await reqHasSpu(
+  const result: HasSpuResponseData = await reqHasSpu(
     pageNo.value,
     pageSize.value,
     categoryStore.c3Id || 0,
@@ -243,7 +243,7 @@ const addSku = (row: SpuData) => {
 
 //查看SKU列表的数据
 const findSku = async (row: SpuData) => {
-  let result: SkuInfoData = await reqSkuList(row.id as number)
+  const result: SkuInfoData = await reqSkuList(row.id as number)
   if (result.code == 200) {
     skuArr.value = result.data
     //对话框显示出来
@@ -253,7 +253,7 @@ const findSku = async (row: SpuData) => {
 
 //删除已有的SPU按钮的回调
 const deleteSpu = async (row: SpuData) => {
-  let result: ResponseData = await reqRemoveSpu(row.id as number)
+  const result: ResponseData = await reqRemoveSpu(row.id as number)
   if (result.code == 200) {
     ElMessage({
       type: 'success',

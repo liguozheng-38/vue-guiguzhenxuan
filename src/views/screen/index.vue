@@ -27,7 +27,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 //引入顶部的子组件
 import Top from './components/top/index.vue'
 //引入左侧三个子组件
@@ -44,20 +44,30 @@ import Rank from './components/rank/index.vue'
 import Year from './components/year/index.vue'
 import Counter from './components/couter/index.vue'
 //获取数据大屏展示内容盒子的DOM元素
-let screen = ref()
-onMounted(() => {
-  screen.value.style.transform = `scale(${getScale()}) translate(-50%,-50%)`
-})
+const screen = ref()
+
 //定义大屏缩放比例
 function getScale(w = 1920, h = 1080) {
   const ww = window.innerWidth / w
   const wh = window.innerHeight / h
   return ww < wh ? ww : wh
 }
-//监听视口变化
-window.onresize = () => {
-  screen.value.style.transform = `scale(${getScale()}) translate(-50%,-50%)`
+
+//更新缩放
+function updateScale() {
+  if (screen.value) {
+    screen.value.style.transform = `scale(${getScale()}) translate(-50%,-50%)`
+  }
 }
+
+onMounted(() => {
+  updateScale()
+  window.addEventListener('resize', updateScale)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', updateScale)
+})
 </script>
 
 <style scoped lang="scss">

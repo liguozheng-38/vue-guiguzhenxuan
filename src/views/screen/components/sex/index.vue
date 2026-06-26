@@ -24,10 +24,10 @@
 import { ref, onMounted } from 'vue'
 import * as echarts from 'echarts'
 //获取图形图标的DOM节点
-let charts = ref()
+const charts = ref()
 onMounted(() => {
   //初始化echarts实例
-  let mycharts = echarts.init(charts.value)
+  const mycharts = echarts.init(charts.value)
   //设置配置项
   mycharts.setOption({
     //组件标题

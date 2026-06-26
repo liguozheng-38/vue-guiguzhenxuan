@@ -20,6 +20,7 @@
           v-model="layoutSettingStore.themeColor"
           size="small"
           show-alpha
+          :teleported="false"
           :predefine="predefineColors"
         />
       </el-form-item>
@@ -62,7 +63,7 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+import { useRouter } from 'vue-router'
 //获取layout骨架的小仓库
 import useLayOutSettingStore from '@/store/modules/setting'
 //获取用户相关的小仓库
@@ -70,7 +71,6 @@ import useUserStore from '@/store/modules/user'
 const layoutSettingStore = useLayOutSettingStore()
 const userStore = useUserStore()
 const $router = useRouter()
-const $route = useRoute()
 
 // 组件挂载时恢复主题颜色到 DOM（暗黑模式由 useDark 自动处理）
 onMounted(() => {
@@ -86,7 +86,7 @@ const updateRefsh = () => {
 }
 //全屏按钮点击的回调
 const fullScreen = () => {
-  let full = document.fullscreenElement
+  const full = document.fullscreenElement
   if (!full) {
     document.documentElement.requestFullscreen()
   } else {
@@ -96,7 +96,7 @@ const fullScreen = () => {
 //退出登录点击回调
 const logout = async () => {
   await userStore.userLogout()
-  $router.push({ path: '/login', query: { redirect: $route.path } })
+  $router.push({ path: '/login' })
 }
 
 // 预定义主题色数组

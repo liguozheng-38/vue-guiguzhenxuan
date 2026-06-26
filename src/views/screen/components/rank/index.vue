@@ -13,11 +13,11 @@
 import * as echarts from 'echarts'
 import { ref, onMounted } from 'vue'
 //获取DOM节点
-let charts = ref()
+const charts = ref()
 //组件挂载完毕
 onMounted(() => {
   //一个容器可以同时展示多种类型的图形图标
-  let mychart = echarts.init(charts.value)
+  const mychart = echarts.init(charts.value)
   //设置配置项
   mychart.setOption({
     //标题组件
@@ -93,7 +93,7 @@ onMounted(() => {
           //柱条颜色
           color: function (data: { dataIndex: number }) {
             //给每一个柱条这是背景颜色
-            let arr = [
+            const arr = [
               'red',
               'orange',
               'yellowgreen',
@@ -151,7 +151,7 @@ onMounted(() => {
           //柱条颜色
           color: function (data: { dataIndex: number }) {
             //给每一个柱条这是背景颜色
-            let arr = [
+            const arr = [
               'red',
               'orange',
               'yellowgreen',

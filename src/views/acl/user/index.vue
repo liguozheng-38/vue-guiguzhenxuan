@@ -195,33 +195,33 @@ import { ElMessage, ElForm } from 'element-plus'
 import type { CheckboxValueType } from 'element-plus'
 
 //默认页码
-let pageNo = ref<number>(1)
+const pageNo = ref<number>(1)
 //一页展示几条数据
-let pageSize = ref<number>(5)
+const pageSize = ref<number>(5)
 //用户总个数
-let total = ref<number>(0)
+const total = ref<number>(0)
 //存储全部用户的数组
-let userArr = ref<Records>([])
+const userArr = ref<Records>([])
 //定义响应式数据控制抽屉的显示与隐藏
-let drawer = ref<boolean>(false)
+const drawer = ref<boolean>(false)
 //控制分配角色抽屉显示与隐藏
-let drawer1 = ref<boolean>(false)
+const drawer1 = ref<boolean>(false)
 //存储全部角色的数据
-let allRole = ref<AllRole>([])
+const allRole = ref<AllRole>([])
 //当前用户已有的角色ID列表
-let userRoleIds = ref<number[]>([])
+const userRoleIds = ref<number[]>([])
 //收集用户信息的响应式数据
-let userParams = reactive<User>({
+const userParams = reactive<User>({
   username: '',
   name: '',
   password: '',
 })
 //准备一个数组存储批量删除的用户的ID
-let selectIdArr = ref<number[]>([])
+const selectIdArr = ref<number[]>([])
 //获取form组件实例
-let formRef = ref<InstanceType<typeof ElForm>>()
+const formRef = ref<InstanceType<typeof ElForm>>()
 //定义响应式数据:收集用户输入进来的关键字
-let keyword = ref<string>('')
+const keyword = ref<string>('')
 
 //格式化角色名称，空值显示'未分配角色'
 const formatRoleName = (
@@ -239,7 +239,7 @@ onMounted(() => {
 //获取全部已有的用户信息
 const getHasUser = async (pager = 1) => {
   pageNo.value = pager
-  let result: UserResponseData = await reqUserInfo(
+  const result: UserResponseData = await reqUserInfo(
     pageNo.value,
     pageSize.value,
     keyword.value,
@@ -286,7 +286,7 @@ const save = async () => {
   try {
     if (!formRef.value) return
     await formRef.value.validate()
-    let result = await reqAddOrUpdateUser(userParams)
+    const result = await reqAddOrUpdateUser(userParams)
     if (result.code == 200) {
       drawer.value = false
       ElMessage({
@@ -360,7 +360,7 @@ const rules = {
 //分配角色按钮的回调
 const setRole = async (row: User) => {
   Object.assign(userParams, row)
-  let result: AllRoleResponseData = await reqAllRole(
+  const result: AllRoleResponseData = await reqAllRole(
     row.id ?? (row.ID as number),
   )
   if (result.code == 200) {
@@ -397,11 +397,11 @@ const handleCheckedCitiesChange = (value: CheckboxValueType[]) => {
 
 //确定按钮的回调(分配角色)
 const confirmClick = async () => {
-  let data: SetRoleData = {
+  const data: SetRoleData = {
     userId: userParams.id ?? (userParams.ID as number),
     roleIdList: userRoleIds.value,
   }
-  let result = await reqSetUserRole(data)
+  const result = await reqSetUserRole(data)
   if (result.code == 200) {
     ElMessage({ type: 'success', message: '分配角色成功' })
     drawer1.value = false
@@ -411,7 +411,7 @@ const confirmClick = async () => {
 
 //删除某一个用户
 const deleteUser = async (userId: number) => {
-  let result = await reqRemoveUser(userId)
+  const result = await reqRemoveUser(userId)
   if (result.code == 200) {
     ElMessage({ type: 'success', message: '删除成功' })
     getHasUser(
@@ -427,7 +427,7 @@ const selectChange = (value: User[]) => {
 
 //批量删除按钮的回调
 const deleteSelectUser = async () => {
-  let result = await reqSelectUser(selectIdArr.value)
+  const result = await reqSelectUser(selectIdArr.value)
   if (result.code == 200) {
     ElMessage({ type: 'success', message: '批量删除成功' })
     getHasUser(
