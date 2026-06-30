@@ -137,9 +137,9 @@ import SkuForm from './skuForm.vue'
 import { ElMessage } from 'element-plus'
 const categoryStore = useCategoryStore()
 // 进入页面时重置分类状态，避免继承其他页面的筛选条件
-categoryStore.c1Id = null
-categoryStore.c2Id = null
-categoryStore.c3Id = null
+// categoryStore.c1Id = null
+// categoryStore.c2Id = null
+// categoryStore.c3Id = null
 //场景的数据
 const scene = ref<number>(0) //0:显示已有SPU  1:添加或者修改已有SPU 2:添加SKU的结构
 const loading = ref<boolean>(true)
@@ -170,17 +170,6 @@ const sku = ref<SkuFormExpose | null>(null)
 //存储全部的SKU数据
 const skuArr = ref<SkuData[]>([])
 const show = ref<boolean>(false)
-//监听三级分类ID变化
-watch(
-  () => categoryStore.c3Id,
-  () => {
-    //当三级分类发生变化的时候清空对应的数据
-    records.value = []
-    //务必保证有三级分类ID
-    if (!categoryStore.c3Id) return
-    getHasSpu()
-  },
-)
 
 //此方法执行:可以获取某一个三级分类下全部的已有的SPU
 const getHasSpu = async (pager = 1) => {
@@ -197,6 +186,20 @@ const getHasSpu = async (pager = 1) => {
   }
   loading.value = false
 }
+
+//监听三级分类ID变化
+watch(
+  () => categoryStore.c3Id,
+  () => {
+    //当三级分类发生变化的时候清空对应的数据
+    records.value = []
+    //务必保证有三级分类ID
+    if (!categoryStore.c3Id) return
+    // if (categoryStore.c3Id == null) return
+    getHasSpu()
+  },
+  { immediate: true },
+)
 // 分页器变化的回调
 const handlePageChange = (page: number) => {
   getHasSpu(page)
@@ -270,9 +273,9 @@ const deleteSpu = async (row: SpuData) => {
 }
 
 //路由组件销毁前，情况仓库关于分类的数据
-onBeforeUnmount(() => {
-  categoryStore.$reset()
-})
+// onBeforeUnmount(() => {
+//   categoryStore.$reset()
+// })
 </script>
 
 <style scoped></style>

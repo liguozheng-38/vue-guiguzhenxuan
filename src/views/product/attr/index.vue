@@ -147,7 +147,7 @@
 
 <script setup lang="ts">
 //组合式API函数watch
-import { watch, ref, reactive, nextTick } from 'vue'
+import { watch, ref, reactive, nextTick, onBeforeUnmount } from 'vue'
 //引入获取已有属性与属性值接口
 import { reqAttr, reqAddOrUpdateAttr, reqRemoveAttr } from '@/api/product/attr'
 import type { AttrResponseData, Attr, AttrValue } from '@/api/product/attr/type'
@@ -157,9 +157,9 @@ import useCategoryStore from '@/store/modules/category'
 import { ElMessage, ElInput } from 'element-plus'
 const categoryStore = useCategoryStore()
 // 进入页面时重置分类状态，避免继承其他页面的筛选条件
-categoryStore.c1Id = null
-categoryStore.c2Id = null
-categoryStore.c3Id = null
+// categoryStore.c1Id = null
+// categoryStore.c2Id = null
+// categoryStore.c3Id = null
 //存储已有的属性与属性值
 const attrArr = ref<Attr[]>([])
 const loading = ref<boolean>(true)
