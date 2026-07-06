@@ -1,9 +1,6 @@
 <template>
   <div class="box1">
-    <div class="title">
-      <p>男女比例</p>
-      <img src="../../images/dataScreen-title.png" alt="" />
-    </div>
+    <ScreenTitle title="男女比例" />
     <div class="sex">
       <div class="man">
         <img src="../../images/man.png" alt="" />
@@ -21,6 +18,7 @@
 </template>
 
 <script setup lang="ts">
+import ScreenTitle from '../ScreenTitle/index.vue'
 import { ref, onMounted } from 'vue'
 import * as echarts from 'echarts'
 //获取图形图标的DOM节点
@@ -89,15 +87,6 @@ onMounted(() => {
   background: url(../../images/dataScreen-main-cb.png) no-repeat;
   background-size: 100% 100%;
   margin: 20px 0px;
-
-  .title {
-    margin-left: 20px;
-
-    p {
-      color: white;
-      font-size: 20px;
-    }
-  }
 
   .sex {
     display: flex;

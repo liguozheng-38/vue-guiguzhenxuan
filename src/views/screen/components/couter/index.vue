@@ -1,14 +1,12 @@
 <template>
   <div class="box8">
-    <div class="title">
-      <p>数据统计</p>
-      <img src="../../images/dataScreen-title.png" alt="" />
-    </div>
+    <ScreenTitle title="数据统计" />
     <div class="charts" ref="charts"></div>
   </div>
 </template>
 
 <script setup lang="ts">
+import ScreenTitle from '../ScreenTitle/index.vue'
 import * as echarts from 'echarts'
 import { ref, onMounted } from 'vue'
 //获取DOM节点
@@ -23,6 +21,19 @@ onMounted(() => {
       textStyle: {
         color: 'white',
       },
+    },
+    //图例：渲染 series.data[].name（购物/吃饭）并显示对应线条颜色
+    legend: {
+      data: ['购物', '吃饭'],
+      bottom: 0,
+      left: '10%',
+      textStyle: {
+        color: 'white',
+      },
+    },
+    //提示框：鼠标悬停时显示系列名+数值
+    tooltip: {
+      trigger: 'item',
     },
     radar: {
       // shape: 'circle',
@@ -66,13 +77,6 @@ onMounted(() => {
   background: url(../../images/dataScreen-main-cb.png) no-repeat;
   background-size: 100% 100%;
   margin-top: 20px;
-
-  .title {
-    p {
-      color: white;
-      font-size: 18px;
-    }
-  }
 
   .charts {
     height: calc(100% - 30px);

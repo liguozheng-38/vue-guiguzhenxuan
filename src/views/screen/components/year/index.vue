@@ -1,14 +1,12 @@
 <template>
   <div class="box7">
-    <div class="title">
-      <p>年度游客量对比</p>
-      <img src="../../images/dataScreen-title.png" alt="" />
-    </div>
+    <ScreenTitle title="年度游客量对比" />
     <div class="charts" ref="charts"></div>
   </div>
 </template>
 
 <script setup lang="ts">
+import ScreenTitle from '../ScreenTitle/index.vue'
 import * as echarts from 'echarts'
 import { ref, onMounted } from 'vue'
 //获取DOM节点
@@ -87,13 +85,6 @@ onMounted(() => {
   background: url(../../images/dataScreen-main-cb.png) no-repeat;
   background-size: 100% 100%;
   margin: 20px 0px;
-
-  .title {
-    p {
-      color: white;
-      font-size: 18px;
-    }
-  }
 
   .charts {
     height: calc(100% - 30px);

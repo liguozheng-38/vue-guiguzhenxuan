@@ -34,9 +34,8 @@ onMounted(() => {
         color: 'white',
         fontSize: 14,
       },
-
       itemStyle: {
-        //每一个多边形的样式
+        //每一个多边形的样式：蓝色渐变背景
         color: {
           type: 'linear',
           x: 0,
@@ -46,24 +45,30 @@ onMounted(() => {
           colorStops: [
             {
               offset: 0,
-              color: 'red', // 0% 处的颜色
+              color: '#2b5c8a', // 顶部中蓝
             },
             {
               offset: 1,
-              color: 'blue', // 100% 处的颜色
+              color: '#1a3a5c', // 底部深蓝
             },
           ],
-          global: false, // 缺省为 false
+          global: false,
         },
-        opacity: 0.8,
+        //省份边框线
+        borderColor: '#4a90d9',
+        borderWidth: 1,
+        opacity: 0.9,
       },
       //地图高亮的效果
       emphasis: {
         itemStyle: {
-          color: 'red',
+          color: '#3a7bb8',
+          borderColor: '#7fb8e8',
+          borderWidth: 2,
         },
         label: {
           fontSize: 40,
+          color: 'white',
         },
       },
     },
@@ -77,73 +82,64 @@ onMounted(() => {
     series: [
       {
         type: 'lines', //航线的系列
+        coordinateSystem: 'geo',
         data: [
           {
             coords: [
               [116.405285, 39.904989], // 北京
               [119.306239, 26.075302], // 福州
             ],
-            lineStyle: {
-              color: 'orange',
-              width: 5,
-            },
           },
           {
             coords: [
               [116.405285, 39.904989], // 北京
               [114.298572, 30.584355], // 武汉
             ],
-            lineStyle: {
-              color: 'yellow',
-              width: 5,
-            },
           },
           {
             coords: [
               [102.712251, 25.040609], // 昆明
               [119.596441, 39.949093], // 秦皇岛
             ],
-            lineStyle: {
-              color: 'red',
-              width: 5,
-            },
           },
           {
             coords: [
               [102.712251, 25.040609], // 昆明
               [87.617733, 43.792818], // 乌鲁木齐（新疆）
             ],
-            lineStyle: {
-              color: 'green',
-              width: 5,
-            },
           },
           {
             coords: [
               [102.712251, 25.040609], // 昆明
               [120.155151, 30.274084], // 杭州
             ],
-            lineStyle: {
-              color: 'purple',
-              width: 5,
-            },
           },
           {
             coords: [
               [102.712251, 25.040609], // 昆明
               [91.132212, 29.654877], // 拉萨（西藏）
             ],
-            lineStyle: {
-              color: 'cyan',
-              width: 5,
-            },
+          },
+          {
+            coords: [
+              [91.132212, 29.654877], // 拉萨（西藏）
+              [122.116394, 37.509691], //威海
+            ],
           },
         ],
+        //统一线条样式：白色细曲线
+        lineStyle: {
+          color: 'white',
+          width: 1,
+          opacity: 0.6,
+          curveness: 0.3, //曲度，0为直线，越大越弯
+        },
         effect: {
           show: true,
-          symbol: 'arrow',
-          color: 'black',
-          symbolSize: 10,
+          symbol:
+            'path://M1705.06,1318.313v-89.254l-319.9-221.799l0.073-208.063c0-70.302-23.221-130.593-51.452-130.593c-28.231,0-51.452,60.291-51.452,130.593l0.073,208.063l-319.9,221.799v89.254l319.9-110.646l-0.073,158.94l-89.254,73.845v56.878l140.301-44.526l140.301,44.526v-56.878l-89.254-73.845l-0.073-158.94L1705.06,1318.313z',
+          symbolSize: 15,
+          color: '#ffd700',
         },
       },
     ],
@@ -156,15 +152,6 @@ onMounted(() => {
   width: 100%;
   height: 100%;
   position: relative;
-}
-
-.title {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  color: white;
-  font-size: 20px;
-  z-index: 10;
 }
 
 .box4 > div:last-child {

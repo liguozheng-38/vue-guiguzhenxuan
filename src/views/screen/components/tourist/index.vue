@@ -41,8 +41,8 @@ onMounted(() => {
     yAxis: {},
     //系列:决定你展示什么样的图形图标
     series: {
-      type: 'liquidFill', //系列
-      data: [0.6, 0.4, 0.2], //展示的数据
+      type: 'liquidFill',
+      data: [0.6, 0.4, 0.2],
       waveAnimation: true, //动画
       animationDuration: 3,
       animationDurationUpdate: 0,
@@ -78,7 +78,7 @@ onMounted(() => {
   margin-top: 10px;
 
   .top {
-    margin-left: 20px;
+    // margin-left: 20px;
 
     .title {
       color: white;

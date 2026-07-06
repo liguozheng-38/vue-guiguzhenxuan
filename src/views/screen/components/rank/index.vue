@@ -1,15 +1,13 @@
 <template>
   <div class="box6">
-    <div class="title">
-      <p>热门景区排行</p>
-      <img src="../../images/dataScreen-title.png" alt="" />
-    </div>
+    <ScreenTitle title="热门景区排行" />
     <!-- 图形图标的容器 -->
     <div class="charts" ref="charts"></div>
   </div>
 </template>
 
 <script setup lang="ts">
+import ScreenTitle from '../ScreenTitle/index.vue'
 import * as echarts from 'echarts'
 import { ref, onMounted } from 'vue'
 //获取DOM节点
@@ -47,7 +45,7 @@ onMounted(() => {
     yAxis: {},
     //布局组件
     grid: {
-      left: 20,
+      left: 30,
       bottom: 20,
       right: 20,
     },
@@ -179,15 +177,6 @@ onMounted(() => {
   background: url(../../images/dataScreen-main-cb.png) no-repeat;
   background-size: 100% 100%;
   margin: 20px 0px;
-
-  .title {
-    margin-left: 5px;
-
-    p {
-      color: white;
-      font-size: 20px;
-    }
-  }
 
   .charts {
     height: calc(100% - 30px);

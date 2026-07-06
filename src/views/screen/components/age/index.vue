@@ -1,15 +1,13 @@
 <template>
   <div class="box2">
-    <div class="title">
-      <p>年龄比例</p>
-      <img src="../../images/dataScreen-title.png" alt="" />
-    </div>
+    <ScreenTitle title="年龄比例" />
     <!-- 图形图标的容器 -->
     <div class="charts" ref="charts"></div>
   </div>
 </template>
 
 <script setup lang="ts">
+import ScreenTitle from '../ScreenTitle/index.vue'
 import { ref, onMounted } from 'vue'
 //引入echarts
 import * as echarts from 'echarts'
@@ -52,21 +50,14 @@ onMounted(() => {
           show: false,
         },
         data: [
-          { value: 1048, name: '军事' },
-          { value: 735, name: '新闻' },
-          { value: 580, name: '直播' },
-          { value: 484, name: '娱乐' },
-          { value: 300, name: '财经' },
+          { value: 1048, name: '20~30岁' },
+          { value: 735, name: '30~40岁' },
+          { value: 580, name: '40~50岁' },
+          { value: 484, name: '50~60岁' },
+          { value: 300, name: '60岁以上' },
         ],
       },
     ],
-    //调整图形图标的位置
-    grid: {
-      left: 0,
-      top: 0,
-      right: 0,
-      bottom: 0,
-    },
   }
   mychart.setOption(option)
 })
@@ -78,15 +69,6 @@ onMounted(() => {
   height: 100%;
   background: url(../../images/dataScreen-main-cb.png) no-repeat;
   background-size: 100% 100%;
-
-  .title {
-    margin-left: 20px;
-
-    p {
-      color: white;
-      font-size: 20px;
-    }
-  }
 
   .charts {
     height: 260px;

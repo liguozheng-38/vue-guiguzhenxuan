@@ -1,14 +1,12 @@
 <template>
   <div class="box5">
-    <div class="title">
-      <p>未来七天游客数量趋势图</p>
-      <img src="../../images/dataScreen-title.png" alt="" />
-    </div>
+    <ScreenTitle title="未来七天游客数量趋势图" />
     <div class="charts" ref="line"></div>
   </div>
 </template>
 
 <script setup lang="ts">
+import ScreenTitle from '../ScreenTitle/index.vue'
 import * as echarts from 'echarts'
 import { ref, onMounted } from 'vue'
 //获取图形图标的节点
@@ -100,15 +98,6 @@ onMounted(() => {
   background: url(../../images/dataScreen-main-cb.png) no-repeat;
   background-size: 100% 100%;
   margin: 0px 20px;
-
-  .title {
-    margin-left: 10px;
-
-    p {
-      color: white;
-      font-size: 20px;
-    }
-  }
 
   .charts {
     height: calc(100% - 40px);
